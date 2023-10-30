@@ -41,8 +41,11 @@ void Tema1::Init()
     logicSpace.width = 1280;   // logic width
     logicSpace.height = 720;  // logic height
 
-    Mesh* endLine = object2D::CreateRect("endLine", glm::vec3(25, 25, 0), 50, 400, glm::vec3(1, 0, 0), true);
+    Mesh* endLine = object2D::CreateRect("endLine", glm::vec3(25, 25, 0), 50, 425, glm::vec3(1, 0, 0), true);
     AddMeshToList(endLine);
+
+    Mesh* tableSquare = object2D::CreateSquare("tableSquare", glm::vec3(100, 25, 0), 125, glm::vec3(0, 1, 0), true);
+    AddMeshToList(tableSquare);
 }
 
 
@@ -62,7 +65,7 @@ void Tema1::Update(float deltaTimeSeconds)
 {
     glm::ivec2 resolution = window->GetResolution();
     viewSpace = ViewportSpace(0, 0, resolution.x, resolution.y);
-    SetViewportArea(viewSpace, glm::vec3(0.5f), true);
+    SetViewportArea(viewSpace, glm::vec3(0.1f), true);
 
     // Compute uniform 2D visualization matrix
     visMatrix = glm::mat3(1);
@@ -70,6 +73,15 @@ void Tema1::Update(float deltaTimeSeconds)
 
     glm::mat3 modelMatrix = visMatrix;
     RenderMesh2D(meshes["endLine"], shaders["VertexColor"], modelMatrix);
+
+    for (int i = 0; i < 3; i++) {
+        modelMatrix = visMatrix * transform2D::Translate(0, i * 150);
+
+        for (int j = 0; j < 3; j++) {
+            RenderMesh2D(meshes["tableSquare"], shaders["VertexColor"], modelMatrix);
+            modelMatrix *= transform2D::Translate(150, 0);
+        }
+    }
 }
 
 
