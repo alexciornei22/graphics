@@ -8,6 +8,28 @@ namespace m1
     class Tema1 : public gfxc::SimpleScene
     {
     public:
+        struct ViewportSpace
+        {
+            ViewportSpace() : x(0), y(0), width(1), height(1) {}
+            ViewportSpace(int x, int y, int width, int height)
+                : x(x), y(y), width(width), height(height) {}
+            int x;
+            int y;
+            int width;
+            int height;
+        };
+
+        struct LogicSpace
+        {
+            LogicSpace() : x(0), y(0), width(1), height(1) {}
+            LogicSpace(float x, float y, float width, float height)
+                : x(x), y(y), width(width), height(height) {}
+            float x;
+            float y;
+            float width;
+            float height;
+        };
+
         Tema1();
         ~Tema1();
 
@@ -27,12 +49,17 @@ namespace m1
         void OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY) override;
         void OnWindowResize(int width, int height) override;
 
+        // Sets the logic space and view space
+// logicSpace: { x, y, width, height }
+// viewSpace: { x, y, width, height }
+        glm::mat3 VisualizationTransf2D(const LogicSpace& logicSpace, const ViewportSpace& viewSpace);
+        glm::mat3 VisualizationTransf2DUnif(const LogicSpace& logicSpace, const ViewportSpace& viewSpace);
+        void SetViewportArea(const ViewportSpace& viewSpace, glm::vec3 colorColor = glm::vec3(0), bool clear = true);
+
     protected:
-        float cx, cy;
-        glm::mat3 modelMatrix;
-        float translateX, translateY;
-        float scaleX, scaleY;
-        float angularStep;
+        glm::mat3 visMatrix;
+        ViewportSpace viewSpace;
+        LogicSpace logicSpace;
 
         // TODO(student): If you need any other class variables, define them here.
         float direction = 1;

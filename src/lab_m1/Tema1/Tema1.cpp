@@ -36,14 +36,13 @@ void Tema1::Init()
     camera->Update();
     GetCameraInput()->SetActive(false);
 
-    Mesh* star = object2D::CreateStar("star", glm::vec3(300, 300, 0), 100, glm::vec3(1, 0, 0));
-    AddMeshToList(star);
+    logicSpace.x = 0;       // logic x
+    logicSpace.y = 0;       // logic y
+    logicSpace.width = 1280;   // logic width
+    logicSpace.height = 720;  // logic height
 
-    Mesh* shooter = object2D::CreateShooter("shooter", glm::vec3(500, 300, 0), 10, glm::vec3(1, 0, 0));
-    AddMeshToList(shooter);
-
-    Mesh* hex = object2D::CreateEnemy("hex", glm::vec3(700, 300, 0), 100, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0));
-    AddMeshToList(hex);
+    Mesh* endLine = object2D::CreateRect("endLine", glm::vec3(25, 25, 0), 50, 400, glm::vec3(1, 0, 0), true);
+    AddMeshToList(endLine);
 }
 
 
@@ -61,10 +60,16 @@ void Tema1::FrameStart()
 
 void Tema1::Update(float deltaTimeSeconds)
 {
-    modelMatrix = glm::mat3(1);
-    RenderMesh2D(meshes["star"], shaders["VertexColor"], modelMatrix);
-    RenderMesh2D(meshes["shooter"], shaders["VertexColor"], modelMatrix);
-    RenderMesh2D(meshes["hex"], shaders["VertexColor"], modelMatrix);
+    glm::ivec2 resolution = window->GetResolution();
+    viewSpace = ViewportSpace(0, 0, resolution.x, resolution.y);
+    SetViewportArea(viewSpace, glm::vec3(0.5f), true);
+
+    // Compute uniform 2D visualization matrix
+    visMatrix = glm::mat3(1);
+    visMatrix *= VisualizationTransf2DUnif(logicSpace, viewSpace);
+
+    glm::mat3 modelMatrix = visMatrix;
+    RenderMesh2D(meshes["endLine"], shaders["VertexColor"], modelMatrix);
 }
 
 
@@ -121,4 +126,55 @@ void Tema1::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)
 
 void Tema1::OnWindowResize(int width, int height)
 {
+}
+
+// 2D visualization matrix
+glm::mat3 Tema1::VisualizationTransf2D(const LogicSpace& logicSpace, const ViewportSpace& viewSpace)
+{
+    float sx, sy, tx, ty;
+    sx = viewSpace.width / logicSpace.width;
+    sy = viewSpace.height / logicSpace.height;
+    tx = viewSpace.x - sx * logicSpace.x;
+    ty = viewSpace.y - sy * logicSpace.y;
+
+    return glm::transpose(glm::mat3(
+        sx, 0.0f, tx,
+        0.0f, sy, ty,
+        0.0f, 0.0f, 1.0f));
+}
+
+
+// Uniform 2D visualization matrix (same scale factor on x and y axes)
+glm::mat3 Tema1::VisualizationTransf2DUnif(const LogicSpace& logicSpace, const ViewportSpace& viewSpace)
+{
+    float sx, sy, tx, ty, smin;
+    sx = viewSpace.width / logicSpace.width;
+    sy = viewSpace.height / logicSpace.height;
+    if (sx < sy)
+        smin = sx;
+    else
+        smin = sy;
+    tx = viewSpace.x - smin * logicSpace.x + (viewSpace.width - smin * logicSpace.width) / 2;
+    ty = viewSpace.y - smin * logicSpace.y + (viewSpace.height - smin * logicSpace.height) / 2;
+
+    return glm::transpose(glm::mat3(
+        smin, 0.0f, tx,
+        0.0f, smin, ty,
+        0.0f, 0.0f, 1.0f));
+}
+
+void Tema1::SetViewportArea(const ViewportSpace& viewSpace, glm::vec3 colorColor, bool clear)
+{
+    glViewport(viewSpace.x, viewSpace.y, viewSpace.width, viewSpace.height);
+
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(viewSpace.x, viewSpace.y, viewSpace.width, viewSpace.height);
+
+    // Clears the color buffer (using the previously set color) and depth buffer
+    glClearColor(colorColor.r, colorColor.g, colorColor.b, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_SCISSOR_TEST);
+
+    GetSceneCamera()->SetOrthographic((float)viewSpace.x, (float)(viewSpace.x + viewSpace.width), (float)viewSpace.y, (float)(viewSpace.y + viewSpace.height), 0.1f, 400);
+    GetSceneCamera()->Update();
 }
