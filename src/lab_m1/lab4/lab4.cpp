@@ -48,6 +48,7 @@ void Lab4::Init()
     angularStepOX = 0;
     angularStepOY = 0;
     angularStepOZ = 0;
+    angularStepCenter = 0;
 
     // Sets the resolution of the small viewport
     glm::ivec2 resolution = window->GetResolution();
@@ -61,7 +62,7 @@ void Lab4::FrameStart()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Lab4::RenderScene() {
+void Lab4::RenderScene(bool isMiniView) {
     modelMatrix = glm::mat4(1);
     modelMatrix *= transform3D::Translate(-2.5f, 0.5f, -1.5f);
     modelMatrix *= transform3D::Translate(translateX, translateY, translateZ);
@@ -72,12 +73,19 @@ void Lab4::RenderScene() {
     modelMatrix *= transform3D::Scale(scaleX, scaleY, scaleZ);
     RenderMesh(meshes["box"], shaders["Simple"], modelMatrix);
 
-    modelMatrix = glm::mat4(1);
-    modelMatrix *= transform3D::Translate(2.5f, 0.5f, -1.5f);
-    modelMatrix *= transform3D::RotateOX(angularStepOX);
-    modelMatrix *= transform3D::RotateOY(angularStepOY);
-    modelMatrix *= transform3D::RotateOZ(angularStepOZ);
-    RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
+    if (!isMiniView) {
+        modelMatrix = glm::mat4(1);
+        modelMatrix *= transform3D::Translate(2.5f, 0.5f, -1.5f);
+        modelMatrix *= transform3D::RotateOX(angularStepOX);
+        modelMatrix *= transform3D::RotateOY(angularStepOY);
+        modelMatrix *= transform3D::RotateOZ(angularStepOZ);
+
+        modelMatrix *= transform3D::Translate(-2.5f, 0, 0);
+        modelMatrix *= transform3D::RotateOY(angularStepCenter);
+        modelMatrix *= transform3D::Translate(2.5f, 0, 0);
+
+        RenderMesh(meshes["box"], shaders["VertexNormal"], modelMatrix);
+    }
 }
 
 void Lab4::Update(float deltaTimeSeconds)
@@ -90,13 +98,14 @@ void Lab4::Update(float deltaTimeSeconds)
     glm::ivec2 resolution = window->GetResolution();
     glViewport(0, 0, resolution.x, resolution.y);
 
-    RenderScene();
+    RenderScene(false);
     DrawCoordinateSystem();
 
     glClear(GL_DEPTH_BUFFER_BIT);
     glViewport(miniViewportArea.x, miniViewportArea.y, miniViewportArea.width, miniViewportArea.height);
 
     // TODO(student): render the scene again, in the new viewport
+    RenderScene(true);
     DrawCoordinateSystem();
 }
 
@@ -114,7 +123,61 @@ void Lab4::FrameEnd()
 void Lab4::OnInputUpdate(float deltaTime, int mods)
 {
     // TODO(student): Add transformation logic
+    if (window->KeyHold(GLFW_KEY_W)) {
+        translateZ -= deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_S)) {
+        translateZ += deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_A)) {
+        translateX += deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_D)) {
+        translateX -= deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_R)) {
+        translateY -= deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_F)) {
+        translateY += deltaTime;
+    }
 
+    if (window->KeyHold(GLFW_KEY_1)) {
+        scaleX -= deltaTime;
+        scaleY -= deltaTime;
+        scaleZ -= deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_2)) {
+        scaleX += deltaTime;
+        scaleY += deltaTime;
+        scaleZ += deltaTime;
+    }
+
+    if (window->KeyHold(GLFW_KEY_3)) {
+        angularStepOX += deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_4)) {
+        angularStepOX -= deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_5)) {
+        angularStepOY += deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_6)) {
+        angularStepOY -= deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_7)) {
+        angularStepOZ += deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_8)) {
+        angularStepOZ -= deltaTime;
+    }
+
+    if (window->KeyHold(GLFW_KEY_9)) {
+        angularStepCenter += deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_0)) {
+        angularStepCenter -= deltaTime;
+    }
 }
 
 
@@ -137,7 +200,27 @@ void Lab4::OnKeyPress(int key, int mods)
         }
     }
     
-    // TODO(student): Add viewport movement and scaling logic
+    if (key == GLFW_KEY_I) {
+        miniViewportArea.y += 10;
+    }
+    if (key == GLFW_KEY_J) {
+        miniViewportArea.x -= 10;
+    }
+    if (key == GLFW_KEY_K) {
+        miniViewportArea.y -= 10;
+    }
+    if (key == GLFW_KEY_L) {
+        miniViewportArea.x += 10;
+    }
+
+    if (key == GLFW_KEY_U) {
+        miniViewportArea.height *= 1.5;
+        miniViewportArea.width *= 1.5;
+    }
+    if (key == GLFW_KEY_O) {
+        miniViewportArea.height /= 1.5;
+        miniViewportArea.width /= 1.5;
+    }
 }
 
 

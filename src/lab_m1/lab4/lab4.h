@@ -38,12 +38,13 @@ namespace m1
         void OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY) override;
         void OnWindowResize(int width, int height) override;
 
-        void RenderScene();
+        void RenderScene(bool isMiniView);
      protected:
         glm::mat4 modelMatrix;
         float translateX, translateY, translateZ;
         float scaleX, scaleY, scaleZ;
         float angularStepOX, angularStepOY, angularStepOZ;
+        float angularStepCenter;
         GLenum polygonMode;
         ViewportArea miniViewportArea;
     };
