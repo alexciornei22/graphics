@@ -1,7 +1,7 @@
 #pragma once
 
 #include "components/simple_scene.h"
-
+#include "lab_m1/Tema1/gui.h"
 
 namespace m1
 {
@@ -60,6 +60,11 @@ namespace m1
         glm::mat3 visMatrix;
         ViewportSpace viewSpace;
         LogicSpace logicSpace;
+
+        std::vector<gui::ItemBoxData> itemCoordinates;
+        glm::vec3 backgroundColor = glm::vec3(0.2f);
+        int selectedShooter = -1;
+        glm::vec3 mouseCoordinates;
 
         const std::vector<unsigned int> item_prices = { 1, 2, 2, 3 };
         const std::vector<glm::vec3> shooter_colors = {

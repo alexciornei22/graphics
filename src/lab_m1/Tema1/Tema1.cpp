@@ -49,6 +49,11 @@ void Tema1::Init()
 
     Mesh* itemSquare = object2D::CreateSquare("itemSquare", glm::vec3(SEPARATION, logicSpace.height - SQUARE_LENGTH - SEPARATION, 0), SQUARE_LENGTH, glm::vec3(1, 1, 1), false);
     AddMeshToList(itemSquare);
+    for (int i = 0; i < NR_SHOOTERS; i++) {
+        itemCoordinates.push_back(
+            gui::ItemBoxData(SEPARATION + i * (SEPARATION + SQUARE_LENGTH), logicSpace.height - SQUARE_LENGTH - SEPARATION, SQUARE_LENGTH, i)
+        );
+    }
 
     Mesh* priceStar = object2D::CreateStar("priceStar", glm::vec3(45, logicSpace.height - SQUARE_LENGTH - 2 * SEPARATION, 0), PRICE_SIZE, glm::vec3(1, 1, 0));
     AddMeshToList(priceStar);
@@ -77,7 +82,7 @@ void Tema1::Update(float deltaTimeSeconds)
 {
     glm::ivec2 resolution = window->GetResolution();
     viewSpace = ViewportSpace(0, 0, resolution.x, resolution.y);
-    SetViewportArea(viewSpace, glm::vec3(0.2f), true);
+    SetViewportArea(viewSpace, backgroundColor, true);
 
     // Compute uniform 2D visualization matrix
     visMatrix = glm::mat3(1);
@@ -96,7 +101,7 @@ void Tema1::Update(float deltaTimeSeconds)
     }
 
     modelMatrix = visMatrix;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < NR_SHOOTERS; i++) {
         RenderMesh2D(meshes["itemSquare"], shaders["VertexColor"], modelMatrix);
         modelMatrix *= transform2D::Translate(SQUARE_LENGTH + SEPARATION, 0);
     }
@@ -126,6 +131,13 @@ void Tema1::Update(float deltaTimeSeconds)
     for (int i = 0; i < current_stars; i++) {
         RenderMesh2D(meshes["priceStar"], shaders["VertexColor"], modelMatrix);
         modelMatrix *= transform2D::Translate(PRICE_SEPARATION, 0);
+    }
+
+    if (selectedShooter >= 0) {
+        modelMatrix = visMatrix;
+        modelMatrix *= transform2D::Translate(-(SEPARATION + SQUARE_LENGTH / 3), -(logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION));
+        modelMatrix *= transform2D::Translate(mouseCoordinates.x, mouseCoordinates.y);
+        RenderMesh2D(meshes["shooter"], modelMatrix, shooter_colors[selectedShooter]);
     }
 }
 
@@ -160,19 +172,37 @@ void Tema1::OnKeyRelease(int key, int mods)
 
 void Tema1::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
-    // Add mouse move event
+    mouseY = logicSpace.height - mouseY;
+
+    mouseCoordinates = glm::vec3(mouseX, mouseY, 0);
 }
 
 
 void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {
-    // Add mouse button press event
+    mouseY = logicSpace.height - mouseY;
+
+    if (button == GLFW_MOUSE_BUTTON_2) {
+        for (int i = 0; i < NR_SHOOTERS; i++) {
+            gui::ItemBoxData currentBox = itemCoordinates[i];
+            if (mouseX > currentBox.x &&
+                mouseX < currentBox.x + currentBox.length &&
+                mouseY > currentBox.y &&
+                mouseY < currentBox.y + currentBox.length
+                ) {
+                selectedShooter = currentBox.itemType;
+                mouseCoordinates = glm::vec3(mouseX, mouseY, 0);
+                break;
+            }
+
+        }
+    }
 }
 
 
 void Tema1::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
 {
-    // Add mouse button release event
+    selectedShooter = -1;
 }
 
 
