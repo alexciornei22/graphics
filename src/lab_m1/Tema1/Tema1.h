@@ -62,5 +62,11 @@ namespace m1
         LogicSpace logicSpace;
 
         const std::vector<unsigned int> item_prices = { 1, 2, 2, 3 };
+        const std::vector<glm::vec3> shooter_colors = {
+            glm::vec3(0, 0, 1),
+            glm::vec3(1, 1, 0),
+            glm::vec3(1, 0, 1),
+            glm::vec3(0, 1, 1),
+        };
     };
 }   // namespace m1

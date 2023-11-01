@@ -6,3 +6,4 @@
 #define END_HEIGHT 425
 #define PRICE_SIZE 20
 #define PRICE_SEPARATION 40
+#define NR_SHOOTERS 4
