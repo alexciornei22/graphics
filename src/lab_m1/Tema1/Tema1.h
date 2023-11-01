@@ -68,5 +68,7 @@ namespace m1
             glm::vec3(1, 0, 1),
             glm::vec3(0, 1, 1),
         };
+
+        int current_stars = 5;
     };
 }   // namespace m1
