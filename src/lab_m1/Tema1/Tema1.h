@@ -50,8 +50,8 @@ namespace m1
         void OnWindowResize(int width, int height) override;
 
         // Sets the logic space and view space
-// logicSpace: { x, y, width, height }
-// viewSpace: { x, y, width, height }
+        // logicSpace: { x, y, width, height }
+        // viewSpace: { x, y, width, height }
         glm::mat3 VisualizationTransf2D(const LogicSpace& logicSpace, const ViewportSpace& viewSpace);
         glm::mat3 VisualizationTransf2DUnif(const LogicSpace& logicSpace, const ViewportSpace& viewSpace);
         void SetViewportArea(const ViewportSpace& viewSpace, glm::vec3 colorColor = glm::vec3(0), bool clear = true);
@@ -61,8 +61,6 @@ namespace m1
         ViewportSpace viewSpace;
         LogicSpace logicSpace;
 
-        // TODO(student): If you need any other class variables, define them here.
-        float direction = 1;
-        float direction_scale = 1;
+        const std::vector<unsigned int> item_prices = { 1, 2, 2, 3 };
     };
 }   // namespace m1
