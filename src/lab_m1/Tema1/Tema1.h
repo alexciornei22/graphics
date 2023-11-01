@@ -62,6 +62,7 @@ namespace m1
         LogicSpace logicSpace;
 
         std::vector<gui::ItemBoxData> itemCoordinates;
+        std::vector<gui::TableBoxData> tableCoordinates;
         glm::vec3 backgroundColor = glm::vec3(0.2f);
         int selectedShooter = -1;
         glm::vec3 mouseCoordinates;

@@ -46,6 +46,13 @@ void Tema1::Init()
 
     Mesh* tableSquare = object2D::CreateSquare("tableSquare", glm::vec3(2 * SEPARATION + END_WIDTH, SEPARATION, 0), SQUARE_LENGTH, glm::vec3(0, 1, 0), true);
     AddMeshToList(tableSquare);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            tableCoordinates.push_back(
+                gui::TableBoxData(2 * SEPARATION + END_WIDTH + j * (SQUARE_LENGTH + SEPARATION), SEPARATION + i * (SQUARE_LENGTH + SEPARATION), SQUARE_LENGTH)
+            );
+        }
+    }
 
     Mesh* itemSquare = object2D::CreateSquare("itemSquare", glm::vec3(SEPARATION, logicSpace.height - SQUARE_LENGTH - SEPARATION, 0), SQUARE_LENGTH, glm::vec3(1, 1, 1), false);
     AddMeshToList(itemSquare);
@@ -58,7 +65,7 @@ void Tema1::Init()
     Mesh* priceStar = object2D::CreateStar("priceStar", glm::vec3(45, logicSpace.height - SQUARE_LENGTH - 2 * SEPARATION, 0), PRICE_SIZE, glm::vec3(1, 1, 0));
     AddMeshToList(priceStar);
 
-    Mesh* shooter = object2D::CreateShooter("shooter", glm::vec3(SEPARATION + SQUARE_LENGTH / 3, logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION, 1), SHOOTER_SIZE, glm::vec3(1, 0, 0));
+    Mesh* shooter = object2D::CreateShooter("shooter", glm::vec3(SEPARATION + SQUARE_LENGTH / 3, logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION, 10), SHOOTER_SIZE, glm::vec3(1, 0, 0));
     AddMeshToList(shooter);
 
     Mesh* heart = object2D::CreateHeart("heart", glm::vec3((NR_SHOOTERS + 1) * (SEPARATION + SQUARE_LENGTH), logicSpace.height - SEPARATION - SQUARE_LENGTH / 2, 0), HEART_SIZE, 32, glm::vec3(1, 0, 0));
@@ -96,6 +103,16 @@ void Tema1::Update(float deltaTimeSeconds)
 
         for (int j = 0; j < 3; j++) {
             RenderMesh2D(meshes["tableSquare"], shaders["VertexColor"], modelMatrix);
+
+            if (tableCoordinates[3 * i + j].shooter >= 0) {
+                glm::mat3 tempModelMatrix = modelMatrix;
+
+                tempModelMatrix *= transform2D::Translate(-(SEPARATION + SQUARE_LENGTH / 3), -(logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION));
+                tempModelMatrix *= transform2D::Translate(2 * SEPARATION + END_WIDTH, SEPARATION);
+                tempModelMatrix *= transform2D::Translate(SQUARE_LENGTH / 3, SQUARE_LENGTH / 2);
+                RenderMesh2D(meshes["shooter"], tempModelMatrix, shooter_colors[0]);
+            }
+
             modelMatrix *= transform2D::Translate(SQUARE_LENGTH + SEPARATION, 0);
         }
     }
@@ -202,7 +219,24 @@ void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 
 void Tema1::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
 {
-    selectedShooter = -1;
+    mouseY = logicSpace.height - mouseY;
+
+    if (button == GLFW_MOUSE_BUTTON_2) {
+        for (int i = 0; i < 9; i++) {
+            gui::TableBoxData currentBox = tableCoordinates[i];
+            if (mouseX > currentBox.x &&
+                mouseX < currentBox.x + currentBox.length &&
+                mouseY > currentBox.y &&
+                mouseY < currentBox.y + currentBox.length &&
+                currentBox.shooter == -1
+                ) {
+                tableCoordinates[i].shooter = selectedShooter;
+                break;
+            }
+        }
+
+        selectedShooter = -1;
+    }
 }
 
 
