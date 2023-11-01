@@ -190,3 +190,67 @@ Mesh* object2D::CreateEnemy(
     star->InitFromData(vertices, indices);
     return star;
 }
+
+Mesh* object2D::CreateHeart(
+    const std::string& name,
+    glm::vec3 center,
+    float length,
+    int circlePoints,
+    glm::vec3 color)
+{
+    float radius = length / 4;
+    float angle = 360.f / circlePoints;
+    std::vector<VertexFormat> vertices;
+    std::vector<unsigned int> indices;
+
+    // first circle
+    for (int i = 0; i < circlePoints; i++) {
+        float x = radius * glm::cos(glm::radians(angle * i));
+        float y = radius * glm::sin(glm::radians(angle * i));
+             
+        vertices.push_back(
+            VertexFormat(center + glm::vec3(x - radius, y + radius, 0), color)
+        );
+
+        if (i > 1) {
+            indices.push_back(0);
+            indices.push_back(i - 1);
+            indices.push_back(i);
+        }
+    }
+    // second circle
+    for (int i = 0; i < circlePoints; i++) {
+        float x = radius * glm::cos(glm::radians(angle * i));
+        float y = radius * glm::sin(glm::radians(angle * i));
+
+        vertices.push_back(
+            VertexFormat(center + glm::vec3(radius + x, y + radius, 0), color)
+        );
+
+        if (i > 1) {
+            indices.push_back(circlePoints);
+            indices.push_back(circlePoints + i - 1);
+            indices.push_back(circlePoints + i);
+        }
+    }
+
+    // lower tip of the heart
+    vertices.push_back(VertexFormat(center + glm::vec3(0, -2 * radius, 0), color));
+
+    int half = circlePoints / 2;
+    int delta = circlePoints * 0.6 - half;
+
+    // indices for lower triangle between tip and circles
+    indices.push_back(vertices.size() - 1);
+    indices.push_back(2 * circlePoints - delta);
+    indices.push_back(half + delta);
+    // indices for upper triangle to fill space between circle intersection
+    // and lower triangle
+    indices.push_back(0);
+    indices.push_back(2 * circlePoints - delta);
+    indices.push_back(half + delta);
+
+    Mesh* heart = new Mesh(name);
+    heart->InitFromData(vertices, indices);
+    return heart;
+}

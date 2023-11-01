@@ -46,6 +46,15 @@ void Tema1::Init()
 
     Mesh* tableSquare = object2D::CreateSquare("tableSquare", glm::vec3(100, 25, 0), 125, glm::vec3(0, 1, 0), true);
     AddMeshToList(tableSquare);
+
+    Mesh* itemSquare = object2D::CreateSquare("itemSquare", glm::vec3(25, logicSpace.height - 150, 0), 125, glm::vec3(1, 1, 1), false);
+    AddMeshToList(itemSquare);
+
+    Mesh* star = object2D::CreateStar("star", glm::vec3(45, logicSpace.height - 175, 0), 20, glm::vec3(0.5, 0.5, 0.5));
+    AddMeshToList(star);
+
+    Mesh* heart = object2D::CreateHeart("heart", glm::vec3(600, 500, 10), 100, 32, glm::vec3(1, 0, 0));
+    AddMeshToList(heart);
 }
 
 
@@ -65,7 +74,7 @@ void Tema1::Update(float deltaTimeSeconds)
 {
     glm::ivec2 resolution = window->GetResolution();
     viewSpace = ViewportSpace(0, 0, resolution.x, resolution.y);
-    SetViewportArea(viewSpace, glm::vec3(0.1f), true);
+    SetViewportArea(viewSpace, glm::vec3(0.2f), true);
 
     // Compute uniform 2D visualization matrix
     visMatrix = glm::mat3(1);
@@ -73,6 +82,8 @@ void Tema1::Update(float deltaTimeSeconds)
 
     glm::mat3 modelMatrix = visMatrix;
     RenderMesh2D(meshes["endLine"], shaders["VertexColor"], modelMatrix);
+    RenderMesh2D(meshes["heart"], shaders["VertexColor"], modelMatrix);
+    RenderMesh2D(meshes["star"], shaders["VertexColor"], modelMatrix);
 
     for (int i = 0; i < 3; i++) {
         modelMatrix = visMatrix * transform2D::Translate(0, i * 150);
@@ -81,6 +92,12 @@ void Tema1::Update(float deltaTimeSeconds)
             RenderMesh2D(meshes["tableSquare"], shaders["VertexColor"], modelMatrix);
             modelMatrix *= transform2D::Translate(150, 0);
         }
+    }
+
+    modelMatrix = visMatrix;
+    for (int i = 0; i < 4; i++) {
+        RenderMesh2D(meshes["itemSquare"], shaders["VertexColor"], modelMatrix);
+        modelMatrix *= transform2D::Translate(150, 0);
     }
 }
 
