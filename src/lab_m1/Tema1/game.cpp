@@ -14,6 +14,20 @@ void game::checkProjectileEnemyCollisions(std::vector<Projectile>& projectiles, 
 	}
 }
 
+void game::checkShooterEnemyCollisions(game::TableBoxData tableCoordinates[3][3], std::vector<Enemy>& enemies)
+{
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            game::TableBoxData& currentBox = tableCoordinates[i][j];
+            for (auto& enemy : enemies) {
+                if (glm::distance(enemy.coordinates, currentBox.getCenter()) < 125) {
+                    currentBox.isShooterDeleted = true;
+                }
+            }
+        }
+    }
+}
+
 bool enemyReachedEnd(game::Enemy enemy) {
     return enemy.coordinates.x < SEPARATION + END_WIDTH / 2;
 }

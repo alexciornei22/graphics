@@ -54,8 +54,11 @@ namespace game {
 		bool isShooterDeleted = false;
 		float shooterScale = 1.0f;
 		float acceleration = START_SPEED;
+
+		inline glm::vec3 getCenter() { return glm::vec3(x + SQUARE_LENGTH / 2, y + SQUARE_LENGTH / 2, 0); }
 	};
 
 	void checkProjectileEnemyCollisions(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
+	void checkShooterEnemyCollisions(game::TableBoxData tableCoordinates[3][3], std::vector<Enemy>& enemies);
 	void removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
 }

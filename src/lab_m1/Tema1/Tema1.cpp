@@ -229,6 +229,8 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 
     game::checkProjectileEnemyCollisions(projectiles, enemies);
 
+    game::checkShooterEnemyCollisions(tableCoordinates, enemies);
+
     game::removeInvalidPieces(projectiles, enemies);
 }
 
