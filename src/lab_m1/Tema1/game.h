@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lab_m1/Tema1/constants.h";
+
 namespace game {
 	struct Shooter
 	{
@@ -24,5 +26,8 @@ namespace game {
 		int y; // y coordinate of bottom-left corner
 		int length;
 		Shooter *shooter = nullptr;
+		bool isShooterDeleted = false;
+		float shooterScale = 1.0f;
+		float acceleration = START_SPEED;
 	};
 }

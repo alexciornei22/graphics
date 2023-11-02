@@ -44,7 +44,7 @@ void Tema1::Init()
     Mesh* endLine = object2D::CreateRect("endLine", glm::vec3(0), END_WIDTH, END_HEIGHT, glm::vec3(1, 0, 0), true);
     AddMeshToList(endLine);
 
-    Mesh* tableSquare = object2D::CreateSquare("tableSquare", glm::vec3(0), SQUARE_LENGTH, glm::vec3(0, 1, 0), true);
+    Mesh* tableSquare = object2D::CreateSquare("tableSquare", glm::vec3(0), SQUARE_LENGTH, glm::vec3(0, 0.5f, 0), true);
     AddMeshToList(tableSquare);
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
@@ -104,13 +104,15 @@ void Tema1::Update(float deltaTimeSeconds)
         modelMatrix *= transform2D::Translate(0, i * (SQUARE_LENGTH + SEPARATION));
 
         for (int j = 0; j < 3; j++) {
+            game::TableBoxData currentBox = tableCoordinates[3 * i + j];
             RenderMesh2D(meshes["tableSquare"], shaders["VertexColor"], modelMatrix);
 
-            if (tableCoordinates[3 * i + j].shooter) {
+            if (currentBox.shooter) {
                 glm::mat3 tempModelMatrix = modelMatrix;
 
                 tempModelMatrix *= transform2D::Translate(SQUARE_LENGTH / 3, SQUARE_LENGTH / 2);
-                RenderMesh2D(meshes["shooter"], tempModelMatrix, tableCoordinates[3 * i + j].shooter->color);
+                tempModelMatrix *= transform2D::Scale(currentBox.shooterScale, currentBox.shooterScale);
+                RenderMesh2D(meshes["shooter"], tempModelMatrix, currentBox.shooter->color);
             }
 
             modelMatrix *= transform2D::Translate(SQUARE_LENGTH + SEPARATION, 0);
@@ -175,6 +177,19 @@ void Tema1::FrameEnd()
 
 void Tema1::OnInputUpdate(float deltaTime, int mods)
 {
+    for (int i = 0; i < 9; i++) {
+        game::TableBoxData& currentBox = tableCoordinates[i];
+        if (currentBox.isShooterDeleted) {
+            currentBox.shooterScale -= currentBox.acceleration * deltaTime / 2;
+            currentBox.acceleration *= ACCELERATION;
+        }
+        if (currentBox.shooterScale < 0) {
+            currentBox.shooterScale = 1.0f;
+            currentBox.isShooterDeleted = false;
+            currentBox.shooter = nullptr;
+            currentBox.acceleration = START_SPEED;
+        }
+    }
 }
 
 
@@ -212,6 +227,21 @@ void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
                 ) {
                 selectedShooter = currentBox.shooter;
                 mouseCoordinates = glm::vec3(mouseX, mouseY, 0);
+                break;
+            }
+        }
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_3) {
+        for (int i = 0; i < 9; i++) {
+            game::TableBoxData& currentBox = tableCoordinates[i];
+            if (mouseX > currentBox.x &&
+                mouseX < currentBox.x + currentBox.length &&
+                mouseY > currentBox.y &&
+                mouseY < currentBox.y + currentBox.length &&
+                currentBox.shooter != nullptr
+                ) {
+                currentBox.isShooterDeleted = true;
                 break;
             }
         }

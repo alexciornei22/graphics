@@ -9,3 +9,5 @@
 #define SHOOTER_SIZE 9
 #define PRICE_SEPARATION 40
 #define NR_SHOOTERS 4
+#define ACCELERATION 1.25f
+#define START_SPEED 0.5f

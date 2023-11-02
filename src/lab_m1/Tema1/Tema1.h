@@ -72,7 +72,7 @@ namespace m1
         std::vector<game::Shooter> shooters = {
             game::Shooter(1, glm::vec3(0, 0, 1)),
             game::Shooter(2, glm::vec3(1, 1, 0)),
-            game::Shooter(2, glm::vec3(1, 0, 1)),
+            game::Shooter(2, glm::vec3(0, 1, 0)),
             game::Shooter(3, glm::vec3(0, 1, 1)),
         };
     };
