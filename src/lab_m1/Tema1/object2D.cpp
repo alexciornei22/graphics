@@ -108,8 +108,8 @@ Mesh* object2D::CreateStar(
     float scale,
     glm::vec3 color)
 {
-    float circumradius = scale;
-    float inradius = scale / 3;
+    float circumradius = scale / 2;
+    float inradius = circumradius / 3;
 
     std::vector<VertexFormat> vertices;
 
@@ -145,8 +145,8 @@ Mesh* object2D::CreateEnemy(
     glm::vec3 outerColor,
     glm::vec3 innerColor)
 {
-    float radius = scale;
-    float innerRadius = scale * 0.6;
+    float radius = scale / 2;
+    float innerRadius = radius * 0.6;
 
     std::vector<VertexFormat> vertices = { VertexFormat(center, innerColor) };
 
@@ -155,7 +155,7 @@ Mesh* object2D::CreateEnemy(
         float x = radius * glm::cos(glm::radians(30.0f + 60 * n));
         float y = radius * glm::sin(glm::radians(30.0f + 60 * n));
         vertices.push_back(
-            VertexFormat(center + glm::vec3(x, y, 0), outerColor)
+            VertexFormat(center + glm::vec3(x, y, 1), outerColor)
         );
     }
 
@@ -164,7 +164,7 @@ Mesh* object2D::CreateEnemy(
         float x = innerRadius * glm::cos(glm::radians(30.0f + 60 * n));
         float y = innerRadius * glm::sin(glm::radians(30.0f + 60 * n));
         vertices.push_back(
-            VertexFormat(center + glm::vec3(x, y, 1), innerColor)
+            VertexFormat(center + glm::vec3(x, y, 2), innerColor)
         );
     }
 

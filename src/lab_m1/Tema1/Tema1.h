@@ -62,7 +62,23 @@ namespace m1
         LogicSpace logicSpace;
 
         std::vector<game::ItemBoxData> itemCoordinates;
-        std::vector<game::TableBoxData> tableCoordinates;
+        game::TableBoxData tableCoordinates[3][3] = {
+            {
+                game::TableBoxData(2 * SEPARATION + END_WIDTH, SEPARATION, SQUARE_LENGTH), 
+                game::TableBoxData(2 * SEPARATION + END_WIDTH + 1 * (SQUARE_LENGTH + SEPARATION), SEPARATION, SQUARE_LENGTH),
+                game::TableBoxData(2 * SEPARATION + END_WIDTH + 2 * (SQUARE_LENGTH + SEPARATION), SEPARATION, SQUARE_LENGTH)
+            },
+            {
+                game::TableBoxData(2 * SEPARATION + END_WIDTH, SEPARATION + 1 * (SQUARE_LENGTH + SEPARATION), SQUARE_LENGTH),
+                game::TableBoxData(2 * SEPARATION + END_WIDTH + 1 * (SQUARE_LENGTH + SEPARATION), SEPARATION + 1 * (SQUARE_LENGTH + SEPARATION), SQUARE_LENGTH),
+                game::TableBoxData(2 * SEPARATION + END_WIDTH + 2 * (SQUARE_LENGTH + SEPARATION), SEPARATION + 1 * (SQUARE_LENGTH + SEPARATION), SQUARE_LENGTH)
+            },
+            {
+                game::TableBoxData(2 * SEPARATION + END_WIDTH, SEPARATION + 2 * (SQUARE_LENGTH + SEPARATION), SQUARE_LENGTH),
+                game::TableBoxData(2 * SEPARATION + END_WIDTH + 1 * (SQUARE_LENGTH + SEPARATION), SEPARATION + 2 * (SQUARE_LENGTH + SEPARATION), SQUARE_LENGTH),
+                game::TableBoxData(2 * SEPARATION + END_WIDTH + 2 * (SQUARE_LENGTH + SEPARATION), SEPARATION + 2 * (SQUARE_LENGTH + SEPARATION), SQUARE_LENGTH)
+            },
+        };
         glm::vec3 backgroundColor = glm::vec3(0.2f);
 
         game::Shooter* selectedShooter = nullptr;
@@ -75,5 +91,7 @@ namespace m1
             game::Shooter(2, glm::vec3(0, 1, 0)),
             game::Shooter(3, glm::vec3(0, 1, 1)),
         };
+        std::vector<game::Enemy> enemies;
+        std::vector<game::Projectile> projectiles;
     };
 }   // namespace m1
