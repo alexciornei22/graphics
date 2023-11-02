@@ -49,7 +49,7 @@ void Tema1::Init()
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             tableCoordinates.push_back(
-                gui::TableBoxData(2 * SEPARATION + END_WIDTH + j * (SQUARE_LENGTH + SEPARATION), SEPARATION + i * (SQUARE_LENGTH + SEPARATION), SQUARE_LENGTH)
+                game::TableBoxData(2 * SEPARATION + END_WIDTH + j * (SQUARE_LENGTH + SEPARATION), SEPARATION + i * (SQUARE_LENGTH + SEPARATION), SQUARE_LENGTH)
             );
         }
     }
@@ -58,7 +58,7 @@ void Tema1::Init()
     AddMeshToList(itemSquare);
     for (int i = 0; i < NR_SHOOTERS; i++) {
         itemCoordinates.push_back(
-            gui::ItemBoxData(SEPARATION + i * (SEPARATION + SQUARE_LENGTH), logicSpace.height - SQUARE_LENGTH - SEPARATION, SQUARE_LENGTH, i)
+            game::ItemBoxData(SEPARATION + i * (SEPARATION + SQUARE_LENGTH), logicSpace.height - SQUARE_LENGTH - SEPARATION, SQUARE_LENGTH, &shooters[i])
         );
     }
 
@@ -106,12 +106,11 @@ void Tema1::Update(float deltaTimeSeconds)
         for (int j = 0; j < 3; j++) {
             RenderMesh2D(meshes["tableSquare"], shaders["VertexColor"], modelMatrix);
 
-            if (tableCoordinates[3 * i + j].shooter >= 0) {
+            if (tableCoordinates[3 * i + j].shooter) {
                 glm::mat3 tempModelMatrix = modelMatrix;
 
-                // tempModelMatrix *= transform2D::Translate(-(SEPARATION + SQUARE_LENGTH / 3), -(logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION));
                 tempModelMatrix *= transform2D::Translate(SQUARE_LENGTH / 3, SQUARE_LENGTH / 2);
-                RenderMesh2D(meshes["shooter"], tempModelMatrix, shooter_colors[0]);
+                RenderMesh2D(meshes["shooter"], tempModelMatrix, tableCoordinates[3 * i + j].shooter->color);
             }
 
             modelMatrix *= transform2D::Translate(SQUARE_LENGTH + SEPARATION, 0);
@@ -124,11 +123,11 @@ void Tema1::Update(float deltaTimeSeconds)
         modelMatrix *= transform2D::Translate(SQUARE_LENGTH + SEPARATION, 0);
     }
 
-    for (int i = 0; i < item_prices.size(); i++) {
+    for (int i = 0; i < shooters.size(); i++) {
         modelMatrix = visMatrix * transform2D::Translate(SEPARATION + PRICE_SIZE, logicSpace.height - SQUARE_LENGTH - 2 * SEPARATION);
         modelMatrix *= transform2D::Translate(i * (SQUARE_LENGTH + SEPARATION), 0);
         
-        for (int j = 0; j < item_prices[i]; j++) {
+        for (int j = 0; j < shooters[i].price; j++) {
             RenderMesh2D(meshes["priceStar"], shaders["VertexColor"], modelMatrix);
             modelMatrix *= transform2D::Translate(PRICE_SEPARATION, 0);
         }
@@ -137,7 +136,7 @@ void Tema1::Update(float deltaTimeSeconds)
     modelMatrix = visMatrix;
     modelMatrix *= transform2D::Translate(SEPARATION + SQUARE_LENGTH / 3, logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION);
     for (int i = 0; i < NR_SHOOTERS; i++) {
-        RenderMesh2D(meshes["shooter"], modelMatrix, shooter_colors[i]);
+        RenderMesh2D(meshes["shooter"], modelMatrix, shooters[i].color);
         modelMatrix *= transform2D::Translate(SQUARE_LENGTH + SEPARATION, 0);
     }
 
@@ -155,11 +154,10 @@ void Tema1::Update(float deltaTimeSeconds)
         modelMatrix *= transform2D::Translate(PRICE_SEPARATION, 0);
     }
 
-    if (selectedShooter >= 0) {
+    if (selectedShooter) {
         modelMatrix = visMatrix;
-        // modelMatrix *= transform2D::Translate(-(SEPARATION + SQUARE_LENGTH / 3), -(logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION));
         modelMatrix *= transform2D::Translate(mouseCoordinates.x, mouseCoordinates.y);
-        RenderMesh2D(meshes["shooter"], modelMatrix, shooter_colors[selectedShooter]);
+        RenderMesh2D(meshes["shooter"], modelMatrix, selectedShooter->color);
     }
 }
 
@@ -206,17 +204,16 @@ void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 
     if (button == GLFW_MOUSE_BUTTON_2) {
         for (int i = 0; i < NR_SHOOTERS; i++) {
-            gui::ItemBoxData currentBox = itemCoordinates[i];
+            game::ItemBoxData currentBox = itemCoordinates[i];
             if (mouseX > currentBox.x &&
                 mouseX < currentBox.x + currentBox.length &&
                 mouseY > currentBox.y &&
                 mouseY < currentBox.y + currentBox.length
                 ) {
-                selectedShooter = currentBox.itemType;
+                selectedShooter = currentBox.shooter;
                 mouseCoordinates = glm::vec3(mouseX, mouseY, 0);
                 break;
             }
-
         }
     }
 }
@@ -228,19 +225,19 @@ void Tema1::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
 
     if (button == GLFW_MOUSE_BUTTON_2) {
         for (int i = 0; i < 9; i++) {
-            gui::TableBoxData currentBox = tableCoordinates[i];
+            game::TableBoxData &currentBox = tableCoordinates[i];
             if (mouseX > currentBox.x &&
                 mouseX < currentBox.x + currentBox.length &&
                 mouseY > currentBox.y &&
                 mouseY < currentBox.y + currentBox.length &&
-                currentBox.shooter == -1
+                currentBox.shooter == nullptr
                 ) {
-                tableCoordinates[i].shooter = selectedShooter;
+                currentBox.shooter = selectedShooter;
                 break;
             }
         }
 
-        selectedShooter = -1;
+        selectedShooter = nullptr;
     }
 }
 

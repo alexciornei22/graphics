@@ -1,13 +1,20 @@
 #pragma once
 
-namespace gui {
+namespace game {
+	struct Shooter
+	{
+		Shooter(int price, glm::vec3 color) : price(price), color(color) {}
+		int price;
+		glm::vec3 color;
+	};
+
 	struct ItemBoxData
 	{
-		ItemBoxData(int x, int y, int length, int itemType) : x(x), y(y), length(length), itemType(itemType) {}
+		ItemBoxData(int x, int y, int length, Shooter* shooter) : x(x), y(y), length(length), shooter(shooter) {}
 		int x; // x coordinate of bottom-left corner
 		int y; // y coordinate of bottom-left corner
 		int length;
-		int itemType;
+		Shooter* shooter;
 	};
 
 	struct TableBoxData
@@ -16,6 +23,6 @@ namespace gui {
 		int x; // x coordinate of bottom-left corner
 		int y; // y coordinate of bottom-left corner
 		int length;
-		int shooter = -1;
+		Shooter *shooter = nullptr;
 	};
 }
