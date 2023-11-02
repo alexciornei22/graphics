@@ -14,11 +14,14 @@ void game::checkProjectileEnemyCollisions(std::vector<Projectile>& projectiles, 
 	}
 }
 
-bool hasReachedEnd(game::Enemy enemy) {
+bool enemyReachedEnd(game::Enemy enemy) {
     return enemy.coordinates.x < SEPARATION + END_WIDTH / 2;
 }
-bool isEnemyDead(game::Enemy enemy) {
-    return enemy.health < 1;
+bool projectileReachedEnd(game::Projectile projectile) {
+    return projectile.coordinates.x > 1280;
+}
+bool isSafeToDelete(game::Enemy enemy) {
+    return enemy.safeToDelete;
 }
 bool isProjectileDead(game::Projectile projectile) {
     return projectile.health < 1;
@@ -26,17 +29,22 @@ bool isProjectileDead(game::Projectile projectile) {
 void game::removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies)
 {
     enemies.erase(
-        remove_if(enemies.begin(), enemies.end(), hasReachedEnd),
+        remove_if(enemies.begin(), enemies.end(), enemyReachedEnd),
         enemies.end()
     );
 
     enemies.erase(
-        remove_if(enemies.begin(), enemies.end(), isEnemyDead),
+        remove_if(enemies.begin(), enemies.end(), isSafeToDelete),
         enemies.end()
     );
 
     projectiles.erase(
         remove_if(projectiles.begin(), projectiles.end(), isProjectileDead),
+        projectiles.end()
+    );
+
+    projectiles.erase(
+        remove_if(projectiles.begin(), projectiles.end(), projectileReachedEnd),
         projectiles.end()
     );
 }

@@ -19,6 +19,9 @@ namespace game {
 		int line;
 		glm::vec3 coordinates;
 		glm::vec3 color;
+		bool safeToDelete = false;
+		float scale = 1.0f;
+		float acceleration = START_SPEED;
 	};
 
 	struct Projectile

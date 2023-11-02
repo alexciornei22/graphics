@@ -165,6 +165,7 @@ void Tema1::Update(float deltaTimeSeconds)
         modelMatrix = visMatrix;
         modelMatrix *= transform2D::Translate(enemy.coordinates.x, enemy.coordinates.y);
         modelMatrix *= transform2D::Rotate(0.3f);
+        modelMatrix *= transform2D::Scale(enemy.scale, enemy.scale);
         RenderMesh2D(meshes["enemy" + to_string(enemy.type)], shaders["VertexColor"], modelMatrix);
     }
 
@@ -192,6 +193,8 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 {
     animate::scaleDownShooters(tableCoordinates, deltaTime);
 
+    animate::scaleDownEnemies(enemies, deltaTime);
+
     animate::moveEnemiesLeft(enemies, deltaTime);
 
     animate::moveProjectilesRight(projectiles, deltaTime);
@@ -214,7 +217,6 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 
             if (currentShooter->color == enemy.color) {
                 if (time(nullptr) - tableCoordinates[enemy.line][j].timeLastShot >= 2) {
-                    cout << "shot" << "\n";
                     tableCoordinates[enemy.line][j].timeLastShot = time(nullptr);
 
                     projectiles.push_back(
