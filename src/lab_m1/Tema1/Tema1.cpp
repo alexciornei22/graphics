@@ -41,10 +41,10 @@ void Tema1::Init()
     logicSpace.width = 1280;   // logic width
     logicSpace.height = 720;  // logic height
 
-    Mesh* endLine = object2D::CreateRect("endLine", glm::vec3(SEPARATION, SEPARATION, 0), END_WIDTH, END_HEIGHT, glm::vec3(1, 0, 0), true);
+    Mesh* endLine = object2D::CreateRect("endLine", glm::vec3(0), END_WIDTH, END_HEIGHT, glm::vec3(1, 0, 0), true);
     AddMeshToList(endLine);
 
-    Mesh* tableSquare = object2D::CreateSquare("tableSquare", glm::vec3(2 * SEPARATION + END_WIDTH, SEPARATION, 0), SQUARE_LENGTH, glm::vec3(0, 1, 0), true);
+    Mesh* tableSquare = object2D::CreateSquare("tableSquare", glm::vec3(0), SQUARE_LENGTH, glm::vec3(0, 1, 0), true);
     AddMeshToList(tableSquare);
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
@@ -54,7 +54,7 @@ void Tema1::Init()
         }
     }
 
-    Mesh* itemSquare = object2D::CreateSquare("itemSquare", glm::vec3(SEPARATION, logicSpace.height - SQUARE_LENGTH - SEPARATION, 0), SQUARE_LENGTH, glm::vec3(1, 1, 1), false);
+    Mesh* itemSquare = object2D::CreateSquare("itemSquare", glm::vec3(0), SQUARE_LENGTH, glm::vec3(1, 1, 1), false);
     AddMeshToList(itemSquare);
     for (int i = 0; i < NR_SHOOTERS; i++) {
         itemCoordinates.push_back(
@@ -62,13 +62,13 @@ void Tema1::Init()
         );
     }
 
-    Mesh* priceStar = object2D::CreateStar("priceStar", glm::vec3(45, logicSpace.height - SQUARE_LENGTH - 2 * SEPARATION, 0), PRICE_SIZE, glm::vec3(1, 1, 0));
+    Mesh* priceStar = object2D::CreateStar("priceStar", glm::vec3(0), PRICE_SIZE, glm::vec3(1, 1, 0));
     AddMeshToList(priceStar);
 
-    Mesh* shooter = object2D::CreateShooter("shooter", glm::vec3(SEPARATION + SQUARE_LENGTH / 3, logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION, 10), SHOOTER_SIZE, glm::vec3(1, 0, 0));
+    Mesh* shooter = object2D::CreateShooter("shooter", glm::vec3(0, 0, 1), SHOOTER_SIZE, glm::vec3(1, 0, 0));
     AddMeshToList(shooter);
 
-    Mesh* heart = object2D::CreateHeart("heart", glm::vec3((NR_SHOOTERS + 1) * (SEPARATION + SQUARE_LENGTH), logicSpace.height - SEPARATION - SQUARE_LENGTH / 2, 0), HEART_SIZE, 32, glm::vec3(1, 0, 0));
+    Mesh* heart = object2D::CreateHeart("heart", glm::vec3(0), HEART_SIZE, 32, glm::vec3(1, 0, 0));
     AddMeshToList(heart);
 }
 
@@ -96,10 +96,12 @@ void Tema1::Update(float deltaTimeSeconds)
     visMatrix *= VisualizationTransf2DUnif(logicSpace, viewSpace);
 
     glm::mat3 modelMatrix = visMatrix;
+    modelMatrix *= transform2D::Translate(SEPARATION, SEPARATION);
     RenderMesh2D(meshes["endLine"], shaders["VertexColor"], modelMatrix);
 
     for (int i = 0; i < 3; i++) {
-        modelMatrix = visMatrix * transform2D::Translate(0, i * (SQUARE_LENGTH + SEPARATION));
+        modelMatrix = visMatrix * transform2D::Translate(2 * SEPARATION + END_WIDTH, SEPARATION);
+        modelMatrix *= transform2D::Translate(0, i * (SQUARE_LENGTH + SEPARATION));
 
         for (int j = 0; j < 3; j++) {
             RenderMesh2D(meshes["tableSquare"], shaders["VertexColor"], modelMatrix);
@@ -107,8 +109,7 @@ void Tema1::Update(float deltaTimeSeconds)
             if (tableCoordinates[3 * i + j].shooter >= 0) {
                 glm::mat3 tempModelMatrix = modelMatrix;
 
-                tempModelMatrix *= transform2D::Translate(-(SEPARATION + SQUARE_LENGTH / 3), -(logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION));
-                tempModelMatrix *= transform2D::Translate(2 * SEPARATION + END_WIDTH, SEPARATION);
+                // tempModelMatrix *= transform2D::Translate(-(SEPARATION + SQUARE_LENGTH / 3), -(logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION));
                 tempModelMatrix *= transform2D::Translate(SQUARE_LENGTH / 3, SQUARE_LENGTH / 2);
                 RenderMesh2D(meshes["shooter"], tempModelMatrix, shooter_colors[0]);
             }
@@ -117,14 +118,15 @@ void Tema1::Update(float deltaTimeSeconds)
         }
     }
 
-    modelMatrix = visMatrix;
+    modelMatrix = visMatrix * transform2D::Translate(SEPARATION, logicSpace.height - SQUARE_LENGTH - SEPARATION);
     for (int i = 0; i < NR_SHOOTERS; i++) {
         RenderMesh2D(meshes["itemSquare"], shaders["VertexColor"], modelMatrix);
         modelMatrix *= transform2D::Translate(SQUARE_LENGTH + SEPARATION, 0);
     }
 
     for (int i = 0; i < item_prices.size(); i++) {
-        modelMatrix = visMatrix * transform2D::Translate(i * (SQUARE_LENGTH + SEPARATION), 0);
+        modelMatrix = visMatrix * transform2D::Translate(SEPARATION + PRICE_SIZE, logicSpace.height - SQUARE_LENGTH - 2 * SEPARATION);
+        modelMatrix *= transform2D::Translate(i * (SQUARE_LENGTH + SEPARATION), 0);
         
         for (int j = 0; j < item_prices[i]; j++) {
             RenderMesh2D(meshes["priceStar"], shaders["VertexColor"], modelMatrix);
@@ -133,18 +135,21 @@ void Tema1::Update(float deltaTimeSeconds)
     }
 
     modelMatrix = visMatrix;
+    modelMatrix *= transform2D::Translate(SEPARATION + SQUARE_LENGTH / 3, logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION);
     for (int i = 0; i < NR_SHOOTERS; i++) {
         RenderMesh2D(meshes["shooter"], modelMatrix, shooter_colors[i]);
         modelMatrix *= transform2D::Translate(SQUARE_LENGTH + SEPARATION, 0);
     }
 
     modelMatrix = visMatrix;
+    modelMatrix *= transform2D::Translate((NR_SHOOTERS + 1) * (SEPARATION + SQUARE_LENGTH), logicSpace.height - SEPARATION - SQUARE_LENGTH / 2);
     for (int i = 0; i < 3; i++) {
         RenderMesh2D(meshes["heart"], shaders["VertexColor"], modelMatrix);
         modelMatrix *= transform2D::Translate(HEART_SIZE + SEPARATION, 0);
     }
 
     modelMatrix = visMatrix * transform2D::Translate(NR_SHOOTERS * (SEPARATION + SQUARE_LENGTH) + SQUARE_LENGTH, 0);
+    modelMatrix *= transform2D::Translate(SEPARATION + PRICE_SIZE, logicSpace.height - SQUARE_LENGTH - 2 * SEPARATION);
     for (int i = 0; i < current_stars; i++) {
         RenderMesh2D(meshes["priceStar"], shaders["VertexColor"], modelMatrix);
         modelMatrix *= transform2D::Translate(PRICE_SEPARATION, 0);
@@ -152,7 +157,7 @@ void Tema1::Update(float deltaTimeSeconds)
 
     if (selectedShooter >= 0) {
         modelMatrix = visMatrix;
-        modelMatrix *= transform2D::Translate(-(SEPARATION + SQUARE_LENGTH / 3), -(logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION));
+        // modelMatrix *= transform2D::Translate(-(SEPARATION + SQUARE_LENGTH / 3), -(logicSpace.height - SQUARE_LENGTH / 2 - SEPARATION));
         modelMatrix *= transform2D::Translate(mouseCoordinates.x, mouseCoordinates.y);
         RenderMesh2D(meshes["shooter"], modelMatrix, shooter_colors[selectedShooter]);
     }
