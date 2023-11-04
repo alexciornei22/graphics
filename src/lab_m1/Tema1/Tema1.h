@@ -1,6 +1,7 @@
 #pragma once
 
 #include "components/simple_scene.h"
+#include "lab_m1/Tema1/transform2D.h"
 #include "lab_m1/Tema1/game.h"
 
 namespace m1
@@ -8,16 +9,6 @@ namespace m1
     class Tema1 : public gfxc::SimpleScene
     {
     public:
-        struct CoordinateSpace
-        {
-            CoordinateSpace() : x(0), y(0), width(1), height(1) {}
-            CoordinateSpace(float x, float y, float width, float height)
-                : x(x), y(y), width(width), height(height) {}
-            float x;
-            float y;
-            float width;
-            float height;
-        };
 
         Tema1();
         ~Tema1();
@@ -41,15 +32,13 @@ namespace m1
         // Sets the logic space and view space
         // logicSpace: { x, y, width, height }
         // viewSpace: { x, y, width, height }
-        glm::mat3 VisualizationTransf2D(const CoordinateSpace& logicSpace, const CoordinateSpace& viewSpace);
-        glm::mat3 VisualizationTransf2DUnif(const CoordinateSpace& logicSpace, const CoordinateSpace& viewSpace);
-        void SetViewportArea(const CoordinateSpace& viewSpace, glm::vec3 colorColor = glm::vec3(0), bool clear = true);
+        void SetViewportArea(const transform2D::CoordinateSpace& viewSpace, glm::vec3 colorColor = glm::vec3(0), bool clear = true);
 
     protected:
-        glm::mat3 visMatrix;
-        CoordinateSpace viewSpace;
-        CoordinateSpace logicSpace;
-        glm::vec3 bottomLeftCorner = glm::vec3(0);
+        glm::mat3 visMatrix = glm::mat3(1);
+        transform2D::CoordinateSpace viewSpace;
+        transform2D::CoordinateSpace logicSpace;
+        glm::vec3 backgroundColor = glm::vec3(0.2f);
 
         std::vector<game::ItemBoxData> itemCoordinates;
         game::TableBoxData tableCoordinates[3][3] = {
@@ -69,7 +58,6 @@ namespace m1
                 game::TableBoxData(2 * SEPARATION + END_WIDTH + 2 * (SQUARE_LENGTH + SEPARATION), SEPARATION + 2 * (SQUARE_LENGTH + SEPARATION), SQUARE_LENGTH)
             },
         };
-        glm::vec3 backgroundColor = glm::vec3(0.2f);
 
         game::Shooter* selectedShooter = nullptr;
         int current_stars = 5;

@@ -155,7 +155,7 @@ Mesh* object2D::CreateEnemy(
         float x = radius * glm::cos(glm::radians(30.0f + 60 * n));
         float y = radius * glm::sin(glm::radians(30.0f + 60 * n));
         vertices.push_back(
-            VertexFormat(center + glm::vec3(x, y, 1), outerColor)
+            VertexFormat(center + glm::vec3(x, y, 3), outerColor)
         );
     }
 
@@ -164,7 +164,7 @@ Mesh* object2D::CreateEnemy(
         float x = innerRadius * glm::cos(glm::radians(30.0f + 60 * n));
         float y = innerRadius * glm::sin(glm::radians(30.0f + 60 * n));
         vertices.push_back(
-            VertexFormat(center + glm::vec3(x, y, 2), innerColor)
+            VertexFormat(center + glm::vec3(x, y, 4), innerColor)
         );
     }
 

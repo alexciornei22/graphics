@@ -6,7 +6,7 @@ void game::checkProjectileEnemyCollisions(std::vector<Projectile>& projectiles, 
 {
 	for (auto& projectile : projectiles) {
 		for (auto& enemy : enemies) {
-			if (projectile.type == enemy.type && glm::distance(projectile.coordinates, enemy.coordinates) < 100) {
+			if (projectile.type == enemy.type && glm::distance(projectile.coordinates, enemy.coordinates) < (PROJECTILE_SIZE + ENEMY_SIZE) / 3) {
 				enemy.health--;
 				projectile.health--;
 			}
@@ -20,7 +20,7 @@ void game::checkShooterEnemyCollisions(game::TableBoxData tableCoordinates[3][3]
         for (int j = 0; j < 3; j++) {
             game::TableBoxData& currentBox = tableCoordinates[i][j];
             for (auto& enemy : enemies) {
-                if (glm::distance(enemy.coordinates, currentBox.getCenter()) < 125) {
+                if (glm::distance(enemy.coordinates, currentBox.getCenter()) < SQUARE_LENGTH * 0.8) {
                     currentBox.isShooterDeleted = true;
                 }
             }
@@ -61,4 +61,91 @@ void game::removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector
         remove_if(projectiles.begin(), projectiles.end(), projectileReachedEnd),
         projectiles.end()
     );
+}
+
+void game::generateEnemies(std::vector<Enemy>& enemies, std::vector<Shooter>& shooters)
+{
+    int random = rand();
+    while (random && random % 400 == 0) {
+        int line = rand() % 3;
+        int type = rand() % 4;
+        enemies.push_back(
+            game::Enemy(line, glm::vec3(1400, SEPARATION + SQUARE_LENGTH / 2 + line * (SQUARE_LENGTH + SEPARATION), 1), type, shooters[type].color)
+        );
+
+        random /= 400;
+    }
+}
+
+void game::generateProjectiles(TableBoxData tableCoordinates[3][3], std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies)
+{
+    for (auto& enemy : enemies) {
+        for (int j = 0; j < 3; j++) {
+            game::Shooter* currentShooter = tableCoordinates[enemy.line][j].shooter;
+            if (!currentShooter) continue;
+
+            if (currentShooter->color == enemy.color) {
+                if (time(nullptr) - tableCoordinates[enemy.line][j].timeLastShot >= 2) {
+                    tableCoordinates[enemy.line][j].timeLastShot = time(nullptr);
+
+                    projectiles.push_back(
+                        game::Projectile(enemy.type, glm::vec3(tableCoordinates[enemy.line][j].x + SQUARE_LENGTH, tableCoordinates[enemy.line][j].y + SQUARE_LENGTH / 2, 0), enemy.color)
+                    );
+                }
+            }
+        }
+    }
+}
+
+void game::checkHasSelectedShooter(glm::vec3 mouseCoordinates, std::vector<ItemBoxData> itemCoordinates, Shooter*& selectedShooter)
+{
+    for (int i = 0; i < NR_SHOOTERS; i++) {
+        game::ItemBoxData currentBox = itemCoordinates[i];
+        if (mouseCoordinates.x > currentBox.x &&
+            mouseCoordinates.x < currentBox.x + currentBox.length &&
+            mouseCoordinates.y > currentBox.y &&
+            mouseCoordinates.y < currentBox.y + currentBox.length
+            ) {
+            selectedShooter = currentBox.shooter;
+            break;
+        }
+    }
+}
+
+void game::checkHasDroppedShooter(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3], Shooter*& selectedShooter)
+{
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            game::TableBoxData& currentBox = tableCoordinates[i][j];
+            if (mouseCoordinates.x > currentBox.x &&
+                mouseCoordinates.x < currentBox.x + currentBox.length &&
+                mouseCoordinates.y > currentBox.y &&
+                mouseCoordinates.y < currentBox.y + currentBox.length &&
+                currentBox.shooter == nullptr
+                ) {
+                currentBox.shooter = selectedShooter;
+                break;
+            }
+        }
+    }
+
+    selectedShooter = nullptr;
+}
+
+void game::checkHasClearedBox(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3])
+{
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            game::TableBoxData& currentBox = tableCoordinates[i][j];
+            if (mouseCoordinates.x > currentBox.x &&
+                mouseCoordinates.x < currentBox.x + currentBox.length &&
+                mouseCoordinates.y > currentBox.y &&
+                mouseCoordinates.y < currentBox.y + currentBox.length &&
+                currentBox.shooter != nullptr
+                ) {
+                currentBox.isShooterDeleted = true;
+                break;
+            }
+        }
+    }
 }

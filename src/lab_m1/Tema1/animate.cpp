@@ -45,7 +45,7 @@ void animate::moveEnemiesLeft(std::vector<game::Enemy>& enemies, float deltaTime
 void animate::moveProjectilesRight(std::vector<game::Projectile>& projectiles, float deltaTime)
 {
     for (auto& projectile : projectiles) {
-        projectile.coordinates += glm::vec3(200 * deltaTime, 0, 0);
-        projectile.angularStep -= 2 * deltaTime;
+        projectile.coordinates += glm::vec3(PROJECTILE_SPEED * deltaTime, 0, 0);
+        projectile.angularStep -= PROJECTILE_ROTATION * deltaTime;
     }
 }

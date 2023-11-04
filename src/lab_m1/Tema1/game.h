@@ -61,4 +61,9 @@ namespace game {
 	void checkProjectileEnemyCollisions(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
 	void checkShooterEnemyCollisions(game::TableBoxData tableCoordinates[3][3], std::vector<Enemy>& enemies);
 	void removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
+	void generateEnemies(std::vector<Enemy>& enemies, std::vector<Shooter>& shooters);
+	void generateProjectiles(TableBoxData tableCoordinates[3][3], std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
+	void checkHasSelectedShooter(glm::vec3 mouseCoordinates, std::vector<ItemBoxData> itemCoordinates,Shooter* &selectedShooter);
+	void checkHasDroppedShooter(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3], Shooter*& selectedShooter);
+	void checkHasClearedBox(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3]);
 }
