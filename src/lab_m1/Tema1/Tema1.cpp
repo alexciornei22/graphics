@@ -56,6 +56,9 @@ void Tema1::Init()
     Mesh* priceStar = object2D::CreateStar("priceStar", glm::vec3(0), PRICE_SIZE, glm::vec3(1, 1, 0));
     AddMeshToList(priceStar);
 
+    Mesh* star = object2D::CreateStar("star", glm::vec3(0, 0, 10), STAR_SIZE, glm::vec3(1));
+    AddMeshToList(star);
+
     Mesh* shooter = object2D::CreateShooter("shooter", glm::vec3(0, 0, 1), SHOOTER_SIZE, glm::vec3(1, 0, 0));
     AddMeshToList(shooter);
 
@@ -87,6 +90,12 @@ void Tema1::Update(float deltaTimeSeconds)
         modelMatrix = visMatrix;
         modelMatrix *= transform2D::Translate(mouseCoordinates.x, mouseCoordinates.y);
         RenderMesh2D(meshes["shooter"], modelMatrix, selectedShooter->color);
+    }
+
+    for (auto& star : stars) {
+        modelMatrix = visMatrix;
+        modelMatrix *= transform2D::Translate(star.coordinates.x, star.coordinates.y);
+        RenderMesh2D(meshes["star"], modelMatrix, glm::vec3(1, 0, 1));
     }
 
     modelMatrix = visMatrix * transform2D::Translate(SEPARATION, SEPARATION);
@@ -140,11 +149,12 @@ void Tema1::Update(float deltaTimeSeconds)
         modelMatrix *= transform2D::Translate(HEART_SIZE + SEPARATION, 0);
     }
 
-    modelMatrix = visMatrix * transform2D::Translate(NR_SHOOTERS * (SEPARATION + SQUARE_LENGTH) + SQUARE_LENGTH, 0);
-    modelMatrix *= transform2D::Translate(SEPARATION + PRICE_SIZE / 2, logicSpace.height - SQUARE_LENGTH - 1.5f * SEPARATION - PRICE_SIZE / 2);
-    for (int i = 0; i < current_stars; i++) {
+
+    for (int i = 0; i < currentStars; i++) {
+        modelMatrix = visMatrix * transform2D::Translate(NR_SHOOTERS * (SEPARATION + SQUARE_LENGTH) + SQUARE_LENGTH, 0);
+        modelMatrix *= transform2D::Translate(0, logicSpace.height - SQUARE_LENGTH - 1.5f * SEPARATION - PRICE_SIZE / 2);
+        modelMatrix *= transform2D::Translate((i % STARS_PER_ROW) * PRICE_SEPARATION, -(i / STARS_PER_ROW) * PRICE_SEPARATION);
         RenderMesh2D(meshes["priceStar"], shaders["VertexColor"], modelMatrix);
-        modelMatrix *= transform2D::Translate(PRICE_SEPARATION, 0);
     }
 
     for (auto &enemy : enemies) {
@@ -189,6 +199,8 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 
     game::generateProjectiles(tableCoordinates, projectiles, enemies);
 
+    game::generateStars(stars, lastGeneratedStars);
+
     game::checkProjectileEnemyCollisions(projectiles, enemies);
 
     game::checkShooterEnemyCollisions(tableCoordinates, enemies);
@@ -220,6 +232,8 @@ void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
     transform2D::updateMouseCoordinates(logicSpace, viewSpace, mouseCoordinates, mouseX, mouseY);
 
     if (button == GLFW_MOUSE_BUTTON_2) {
+        game::checkHasCollectedStar(mouseCoordinates, stars, currentStars);
+
         game::checkHasSelectedShooter(mouseCoordinates, itemCoordinates, selectedShooter);
     }
 

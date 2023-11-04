@@ -1,8 +1,11 @@
 #pragma once
 
+#include <chrono>
 #include "components/simple_scene.h"
 #include "lab_m1/Tema1/transform2D.h"
 #include "lab_m1/Tema1/game.h"
+
+using namespace std::chrono;
 
 namespace m1
 {
@@ -71,5 +74,7 @@ namespace m1
         };
         std::vector<game::Enemy> enemies;
         std::vector<game::Projectile> projectiles;
+        std::vector<game::Star> stars;
+        milliseconds lastGeneratedStars = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     };
 }   // namespace m1

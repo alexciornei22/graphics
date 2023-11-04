@@ -37,6 +37,12 @@ namespace game {
 		glm::vec3 color;
 	};
 
+	struct Star
+	{
+		Star(glm::vec3 coordinates) : coordinates(coordinates) {}
+		glm::vec3 coordinates;
+	};
+
 	struct ItemBoxData
 	{
 		ItemBoxData(int x, int y, int length, Shooter* shooter) : x(x), y(y), length(length), shooter(shooter) {}
@@ -66,7 +72,9 @@ namespace game {
 	void removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
 	void generateEnemies(std::vector<Enemy>& enemies, std::vector<Shooter>& shooters);
 	void generateProjectiles(TableBoxData tableCoordinates[3][3], std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
+	void generateStars(std::vector<Star>& stars, milliseconds& lastGeneratedStars);
 	void checkHasSelectedShooter(glm::vec3 mouseCoordinates, std::vector<ItemBoxData> itemCoordinates,Shooter* &selectedShooter);
+	void checkHasCollectedStar(glm::vec3 mouseCoordinates, std::vector<Star>& stars, int& currentStars);
 	void checkHasDroppedShooter(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3], Shooter*& selectedShooter);
 	void checkHasClearedBox(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3]);
 }

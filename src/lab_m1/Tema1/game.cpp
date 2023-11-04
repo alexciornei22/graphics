@@ -97,6 +97,23 @@ void game::generateProjectiles(TableBoxData tableCoordinates[3][3], std::vector<
     }
 }
 
+void game::generateStars(std::vector<Star>& stars, milliseconds& lastGeneratedStars)
+{
+    if (system_clock::now().time_since_epoch() - lastGeneratedStars >= milliseconds(STAR_GENERATION_INTERVAL)) {
+        lastGeneratedStars = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+
+        for (int i = 0; i < 3; i++) {
+            int random = rand();
+            int x = random % 1280;
+            int y = random % 720;
+           
+            stars.push_back(
+                game::Star(glm::vec3(x, y, 10))
+            );
+        }
+    }
+}
+
 void game::checkHasSelectedShooter(glm::vec3 mouseCoordinates, std::vector<ItemBoxData> itemCoordinates, Shooter*& selectedShooter)
 {
     for (int i = 0; i < NR_SHOOTERS; i++) {
@@ -107,6 +124,21 @@ void game::checkHasSelectedShooter(glm::vec3 mouseCoordinates, std::vector<ItemB
             mouseCoordinates.y < currentBox.y + currentBox.length
             ) {
             selectedShooter = currentBox.shooter;
+            break;
+        }
+    }
+}
+
+void game::checkHasCollectedStar(glm::vec3 mouseCoordinates, std::vector<Star>& stars, int& currentStars)
+{
+    for (auto it = stars.begin(); it < stars.end(); it++) {
+        Star star = *it;
+        if (
+            abs(mouseCoordinates.x - star.coordinates.x) < STAR_SIZE / 2 &&
+            abs(mouseCoordinates.y - star.coordinates.y) < STAR_SIZE / 2
+            ) {
+            stars.erase(it);
+            currentStars++;
             break;
         }
     }
