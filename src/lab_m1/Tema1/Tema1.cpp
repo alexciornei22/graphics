@@ -87,12 +87,12 @@ void Tema1::FrameStart()
 void Tema1::Update(float deltaTimeSeconds)
 {
     glm::ivec2 resolution = window->GetResolution();
-    viewSpace = ViewportSpace(0, 0, resolution.x, resolution.y);
+    viewSpace = CoordinateSpace(0, 0, resolution.x, resolution.y);
     SetViewportArea(viewSpace, backgroundColor, true);
 
     // Compute uniform 2D visualization matrix
     visMatrix = glm::mat3(1);
-    visMatrix *= VisualizationTransf2DUnif(logicSpace, viewSpace);
+    visMatrix *= VisualizationTransf2D(logicSpace, viewSpace);
 
     glm::mat3 modelMatrix = visMatrix;
     modelMatrix *= transform2D::Translate(SEPARATION, SEPARATION);
@@ -175,6 +175,12 @@ void Tema1::Update(float deltaTimeSeconds)
         modelMatrix *= transform2D::Rotate(projectile.angularStep);
         RenderMesh2D(meshes["projectile"], modelMatrix, projectile.color);
     }
+
+    modelMatrix = visMatrix;
+    modelMatrix *= transform2D::Translate(mouseCoordinates.x, mouseCoordinates.y);
+    modelMatrix *= transform2D::Scale(0.1f, 0.1f);
+    RenderMesh2D(meshes["projectile"], shaders["VertexColor"], modelMatrix);
+
 }
 
 
@@ -249,26 +255,31 @@ void Tema1::OnKeyRelease(int key, int mods)
 
 void Tema1::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
-    mouseY = logicSpace.height - mouseY;
+    mouseY = viewSpace.height - mouseY;
 
     mouseCoordinates = glm::vec3(mouseX, mouseY, 0);
+    glm::mat3 tempVisMatrix = VisualizationTransf2D(viewSpace, logicSpace);
+    mouseCoordinates = tempVisMatrix * mouseCoordinates;
 }
 
 
 void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {
-    mouseY = logicSpace.height - mouseY;
+    mouseY = viewSpace.height - mouseY;
+    mouseCoordinates = glm::vec3(mouseX, mouseY, 0);
+
+    glm::mat3 tempVisMatrix = VisualizationTransf2D(viewSpace, logicSpace);
+    mouseCoordinates = tempVisMatrix * mouseCoordinates;
 
     if (button == GLFW_MOUSE_BUTTON_2) {
         for (int i = 0; i < NR_SHOOTERS; i++) {
             game::ItemBoxData currentBox = itemCoordinates[i];
-            if (mouseX > currentBox.x &&
-                mouseX < currentBox.x + currentBox.length &&
-                mouseY > currentBox.y &&
-                mouseY < currentBox.y + currentBox.length
+            if (mouseCoordinates.x > currentBox.x &&
+                mouseCoordinates.x < currentBox.x + currentBox.length &&
+                mouseCoordinates.y > currentBox.y &&
+                mouseCoordinates.y < currentBox.y + currentBox.length
                 ) {
                 selectedShooter = currentBox.shooter;
-                mouseCoordinates = glm::vec3(mouseX, mouseY, 0);
                 break;
             }
         }
@@ -278,10 +289,10 @@ void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 game::TableBoxData& currentBox = tableCoordinates[i][j];
-                if (mouseX > currentBox.x &&
-                    mouseX < currentBox.x + currentBox.length &&
-                    mouseY > currentBox.y &&
-                    mouseY < currentBox.y + currentBox.length &&
+                if (mouseCoordinates.x > currentBox.x &&
+                    mouseCoordinates.x < currentBox.x + currentBox.length &&
+                    mouseCoordinates.y > currentBox.y &&
+                    mouseCoordinates.y < currentBox.y + currentBox.length &&
                     currentBox.shooter != nullptr
                     ) {
                     currentBox.isShooterDeleted = true;
@@ -295,16 +306,19 @@ void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 
 void Tema1::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
 {
-    mouseY = logicSpace.height - mouseY;
+    mouseY = viewSpace.height - mouseY;
+    glm::mat3 tempVisMatrix = VisualizationTransf2D(viewSpace, logicSpace);
+    mouseCoordinates = glm::vec3(mouseX, mouseY, 0);
+    mouseCoordinates = tempVisMatrix * mouseCoordinates;
 
     if (button == GLFW_MOUSE_BUTTON_2) {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 game::TableBoxData& currentBox = tableCoordinates[i][j];
-                if (mouseX > currentBox.x &&
-                    mouseX < currentBox.x + currentBox.length &&
-                    mouseY > currentBox.y &&
-                    mouseY < currentBox.y + currentBox.length &&
+                if (mouseCoordinates.x > currentBox.x &&
+                    mouseCoordinates.x < currentBox.x + currentBox.length &&
+                    mouseCoordinates.y > currentBox.y &&
+                    mouseCoordinates.y < currentBox.y + currentBox.length &&
                     currentBox.shooter == nullptr
                     ) {
                     currentBox.shooter = selectedShooter;
@@ -328,7 +342,7 @@ void Tema1::OnWindowResize(int width, int height)
 }
 
 // 2D visualization matrix
-glm::mat3 Tema1::VisualizationTransf2D(const LogicSpace& logicSpace, const ViewportSpace& viewSpace)
+glm::mat3 Tema1::VisualizationTransf2D(const CoordinateSpace& logicSpace, const CoordinateSpace& viewSpace)
 {
     float sx, sy, tx, ty;
     sx = viewSpace.width / logicSpace.width;
@@ -343,7 +357,7 @@ glm::mat3 Tema1::VisualizationTransf2D(const LogicSpace& logicSpace, const Viewp
 }
 
 // Uniform 2D visualization matrix (same scale factor on x and y axes)
-glm::mat3 Tema1::VisualizationTransf2DUnif(const LogicSpace& logicSpace, const ViewportSpace& viewSpace)
+glm::mat3 Tema1::VisualizationTransf2DUnif(const CoordinateSpace& logicSpace, const CoordinateSpace& viewSpace)
 {
     float sx, sy, tx, ty, smin;
     sx = viewSpace.width / logicSpace.width;
@@ -361,7 +375,7 @@ glm::mat3 Tema1::VisualizationTransf2DUnif(const LogicSpace& logicSpace, const V
         0.0f, 0.0f, 1.0f));
 }
 
-void Tema1::SetViewportArea(const ViewportSpace& viewSpace, glm::vec3 colorColor, bool clear)
+void Tema1::SetViewportArea(const CoordinateSpace& viewSpace, glm::vec3 colorColor, bool clear)
 {
     glViewport(viewSpace.x, viewSpace.y, viewSpace.width, viewSpace.height);
 
