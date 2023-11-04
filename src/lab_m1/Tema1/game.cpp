@@ -81,15 +81,15 @@ void game::generateProjectiles(TableBoxData tableCoordinates[3][3], std::vector<
 {
     for (auto& enemy : enemies) {
         for (int j = 0; j < 3; j++) {
-            game::Shooter* currentShooter = tableCoordinates[enemy.line][j].shooter;
-            if (!currentShooter) continue;
+            game::TableBoxData& currentBox = tableCoordinates[enemy.line][j];
+            if (!currentBox.shooter) continue;
 
-            if (currentShooter->color == enemy.color) {
-                if (time(nullptr) - tableCoordinates[enemy.line][j].timeLastShot >= 2) {
-                    tableCoordinates[enemy.line][j].timeLastShot = time(nullptr);
+            if (currentBox.shooter->color == enemy.color) {
+                if (system_clock::now().time_since_epoch() - currentBox.timeLastShot >= milliseconds(PROJECTILE_LAUNCH_INTERVAL)) {
+                    currentBox.timeLastShot = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 
                     projectiles.push_back(
-                        game::Projectile(enemy.type, glm::vec3(tableCoordinates[enemy.line][j].x + SQUARE_LENGTH, tableCoordinates[enemy.line][j].y + SQUARE_LENGTH / 2, 0), enemy.color)
+                        game::Projectile(enemy.type, glm::vec3(currentBox.x + SQUARE_LENGTH, currentBox.y + SQUARE_LENGTH / 2, 0), enemy.color)
                     );
                 }
             }

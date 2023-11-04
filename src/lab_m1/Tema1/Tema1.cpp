@@ -82,7 +82,14 @@ void Tema1::Update(float deltaTimeSeconds)
     SetViewportArea(viewSpace, backgroundColor, true);
 
     glm::mat3 modelMatrix = visMatrix;
-    modelMatrix *= transform2D::Translate(SEPARATION, SEPARATION);
+
+    if (selectedShooter) {
+        modelMatrix = visMatrix;
+        modelMatrix *= transform2D::Translate(mouseCoordinates.x, mouseCoordinates.y);
+        RenderMesh2D(meshes["shooter"], modelMatrix, selectedShooter->color);
+    }
+
+    modelMatrix = visMatrix * transform2D::Translate(SEPARATION, SEPARATION);
     RenderMesh2D(meshes["endLine"], shaders["VertexColor"], modelMatrix);
 
     for (int i = 0; i < 3; i++) {
@@ -138,12 +145,6 @@ void Tema1::Update(float deltaTimeSeconds)
     for (int i = 0; i < current_stars; i++) {
         RenderMesh2D(meshes["priceStar"], shaders["VertexColor"], modelMatrix);
         modelMatrix *= transform2D::Translate(PRICE_SEPARATION, 0);
-    }
-
-    if (selectedShooter) {
-        modelMatrix = visMatrix;
-        modelMatrix *= transform2D::Translate(mouseCoordinates.x, mouseCoordinates.y);
-        RenderMesh2D(meshes["shooter"], modelMatrix, selectedShooter->color);
     }
 
     for (auto &enemy : enemies) {

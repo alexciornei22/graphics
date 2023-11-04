@@ -1,7 +1,10 @@
 #pragma once
 
+#include <chrono>
 #include "lab_m1/Tema1/constants.h";
 #include "glm/glm.hpp"
+
+using namespace std::chrono;
 
 namespace game {
 	struct Shooter
@@ -49,7 +52,7 @@ namespace game {
 		int x; // x coordinate of bottom-left corner
 		int y; // y coordinate of bottom-left corner
 		int length;
-		std::time_t timeLastShot = time(nullptr);
+		milliseconds timeLastShot = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 		Shooter *shooter = nullptr;
 		bool isShooterDeleted = false;
 		float shooterScale = 1.0f;
