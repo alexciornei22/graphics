@@ -5,7 +5,6 @@
 #include "core/engine.h"
 #include "utils/gl_utils.h"
 
-
 Mesh* object2D::CreateSquare(
     const std::string &name,
     glm::vec3 leftBottomCorner,
@@ -138,57 +137,35 @@ Mesh* object2D::CreateStar(
     return star;
 }
 
-Mesh* object2D::CreateEnemy(
+Mesh* object2D::CreateHexagon(
     const std::string& name,
     glm::vec3 center,
-    float scale,
-    glm::vec3 outerColor,
-    glm::vec3 innerColor)
+    float scale, glm::vec3 color)
 {
     float radius = scale / 2;
-    float innerRadius = radius * 0.6;
 
-    std::vector<VertexFormat> vertices = { VertexFormat(center + glm::vec3(0, 0, 3), innerColor)};
+    std::vector<VertexFormat> vertices = { VertexFormat(center, color)};
 
-    // vertices for outer hexagon
     for (int n = 0; n < 6; n++) {
         float x = radius * glm::cos(glm::radians(30.0f + 60 * n));
         float y = radius * glm::sin(glm::radians(30.0f + 60 * n));
         vertices.push_back(
-            VertexFormat(center + glm::vec3(x, y, 3), outerColor)
-        );
-    }
-
-    // vertices for inner hexagon
-    for (int n = 0; n < 6; n++) {
-        float x = innerRadius * glm::cos(glm::radians(30.0f + 60 * n));
-        float y = innerRadius * glm::sin(glm::radians(30.0f + 60 * n));
-        vertices.push_back(
-            VertexFormat(center + glm::vec3(x, y, 4), innerColor)
+            VertexFormat(center + glm::vec3(x, y, 0), color)
         );
     }
 
     std::vector<unsigned int> indices = {
-        // outer hexagon
         0, 1, 2,
         0, 2, 3,
         0, 3, 4,
         0, 4, 5,
         0, 5, 6,
         0, 6, 1,
-
-        // inner hexagon
-        0, 7, 8,
-        0, 8, 9,
-        0, 9, 10,
-        0, 10, 11,
-        0, 11, 12,
-        0, 12, 7
     };
 
-    Mesh* star = new Mesh(name);
-    star->InitFromData(vertices, indices);
-    return star;
+    Mesh* hexagon = new Mesh(name);
+    hexagon->InitFromData(vertices, indices);
+    return hexagon;
 }
 
 Mesh* object2D::CreateHeart(

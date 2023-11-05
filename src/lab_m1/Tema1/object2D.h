@@ -13,6 +13,6 @@ namespace object2D
     Mesh* CreateRect(const std::string& name, glm::vec3 leftBottomCorner, float length, float width, glm::vec3 color, bool fill = false);
     Mesh* CreateStar(const std::string& name, glm::vec3 center, float scale, glm::vec3 color);
     Mesh* CreateShooter(const std::string& name, glm::vec3 center, float scale, glm::vec3 color);
-    Mesh* CreateEnemy(const std::string& name, glm::vec3 center, float scale, glm::vec3 outerColor, glm::vec3 innerColor);
+    Mesh* CreateHexagon(const std::string& name, glm::vec3 center, float scale, glm::vec3 color);
     Mesh* CreateHeart(const std::string& name, glm::vec3 center, float scale, int circlePoints, glm::vec3 color);
 }

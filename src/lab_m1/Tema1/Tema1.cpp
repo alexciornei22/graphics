@@ -65,10 +65,11 @@ void Tema1::Init()
     Mesh* heart = object2D::CreateHeart("heart", glm::vec3(0), HEART_SIZE, 32, glm::vec3(1, 0, 0));
     AddMeshToList(heart);
 
-    for (int i = 0; i < NR_SHOOTERS; i++) {
-        Mesh* enemy = object2D::CreateEnemy("enemy" + to_string(i), glm::vec3(0), ENEMY_SIZE, shooters[i].color, shooters[i].color - glm::vec3(0.5f));
-        AddMeshToList(enemy);
-    }
+    Mesh* enemyOuter = object2D::CreateHexagon("enemyOuter", glm::vec3(0, 0, 3), ENEMY_SIZE, glm::vec3(0));
+    AddMeshToList(enemyOuter);
+
+    Mesh* enemyInner = object2D::CreateHexagon("enemyInner", glm::vec3(0, 0, 4), ENEMY_SIZE * 0.7f, glm::vec3(0));
+    AddMeshToList(enemyInner);
 
     Mesh* projectile = object2D::CreateStar("projectile", glm::vec3(0, 0, 5), PROJECTILE_SIZE, glm::vec3(1, 1, 1));
     AddMeshToList(projectile);
@@ -149,7 +150,6 @@ void Tema1::Update(float deltaTimeSeconds)
         modelMatrix *= transform2D::Translate(HEART_SIZE + SEPARATION, 0);
     }
 
-
     for (int i = 0; i < currentStars; i++) {
         modelMatrix = visMatrix * transform2D::Translate(NR_SHOOTERS * (SEPARATION + SQUARE_LENGTH) + SQUARE_LENGTH, 0);
         modelMatrix *= transform2D::Translate(0, logicSpace.height - SQUARE_LENGTH - 1.5f * SEPARATION - PRICE_SIZE / 2);
@@ -162,7 +162,9 @@ void Tema1::Update(float deltaTimeSeconds)
         modelMatrix *= transform2D::Translate(enemy.coordinates.x, enemy.coordinates.y);
         modelMatrix *= transform2D::Rotate(0.3f);
         modelMatrix *= transform2D::Scale(enemy.scale, enemy.scale);
-        RenderMesh2D(meshes["enemy" + to_string(enemy.type)], shaders["VertexColor"], modelMatrix);
+        RenderMesh2D(meshes["enemyOuter"], modelMatrix, shooters[enemy.type].color);
+        modelMatrix *= transform2D::Scale(enemy.health / 3.f, enemy.health / 3.f);
+        RenderMesh2D(meshes["enemyInner"], modelMatrix, shooters[enemy.type].color / glm::vec3(2));
     }
 
     for (auto& projectile : projectiles) {
