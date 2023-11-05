@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include "lab_m1/Tema1/game.h"
 
 void game::checkProjectileEnemyCollisions(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies)
@@ -114,11 +115,20 @@ void game::generateStars(std::vector<Star>& stars, milliseconds& lastGeneratedSt
     }
 }
 
-void game::checkHasSelectedShooter(glm::vec3 mouseCoordinates, std::vector<ItemBoxData> itemCoordinates, Shooter*& selectedShooter)
+void game::checkEnemyReachedEnd(std::vector<Enemy>& enemies, int& currentHealth)
+{
+    currentHealth -= std::count_if(enemies.begin(), enemies.end(), enemyReachedEnd);
+}
+
+void game::checkHasSelectedShooter(glm::vec3 mouseCoordinates, std::vector<ItemBoxData> itemCoordinates, Shooter*& selectedShooter, int& currentStars)
 {
     for (int i = 0; i < NR_SHOOTERS; i++) {
         game::ItemBoxData currentBox = itemCoordinates[i];
-        if (mouseCoordinates.x > currentBox.x &&
+        if (currentBox.shooter->price > currentStars)
+            break;
+
+        if (
+            mouseCoordinates.x > currentBox.x &&
             mouseCoordinates.x < currentBox.x + currentBox.length &&
             mouseCoordinates.y > currentBox.y &&
             mouseCoordinates.y < currentBox.y + currentBox.length
@@ -144,18 +154,22 @@ void game::checkHasCollectedStar(glm::vec3 mouseCoordinates, std::vector<Star>& 
     }
 }
 
-void game::checkHasDroppedShooter(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3], Shooter*& selectedShooter)
+void game::checkHasDroppedShooter(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3], Shooter*& selectedShooter, int& currentStars)
 {
+    if (!selectedShooter) return;
+
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             game::TableBoxData& currentBox = tableCoordinates[i][j];
-            if (mouseCoordinates.x > currentBox.x &&
+            if (
+                mouseCoordinates.x > currentBox.x &&
                 mouseCoordinates.x < currentBox.x + currentBox.length &&
                 mouseCoordinates.y > currentBox.y &&
                 mouseCoordinates.y < currentBox.y + currentBox.length &&
                 currentBox.shooter == nullptr
                 ) {
                 currentBox.shooter = selectedShooter;
+                currentStars -= selectedShooter->price;
                 break;
             }
         }
@@ -169,7 +183,8 @@ void game::checkHasClearedBox(glm::vec3 mouseCoordinates, TableBoxData tableCoor
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             game::TableBoxData& currentBox = tableCoordinates[i][j];
-            if (mouseCoordinates.x > currentBox.x &&
+            if (
+                mouseCoordinates.x > currentBox.x &&
                 mouseCoordinates.x < currentBox.x + currentBox.length &&
                 mouseCoordinates.y > currentBox.y &&
                 mouseCoordinates.y < currentBox.y + currentBox.length &&
@@ -180,4 +195,10 @@ void game::checkHasClearedBox(glm::vec3 mouseCoordinates, TableBoxData tableCoor
             }
         }
     }
+}
+
+void game::checkIfGameEnded(int currentHealth, WindowObject* window)
+{
+    if (currentHealth <= 0)
+        window->Close();
 }

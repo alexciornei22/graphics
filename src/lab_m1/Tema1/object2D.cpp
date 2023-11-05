@@ -148,7 +148,7 @@ Mesh* object2D::CreateEnemy(
     float radius = scale / 2;
     float innerRadius = radius * 0.6;
 
-    std::vector<VertexFormat> vertices = { VertexFormat(center, innerColor) };
+    std::vector<VertexFormat> vertices = { VertexFormat(center + glm::vec3(0, 0, 3), innerColor)};
 
     // vertices for outer hexagon
     for (int n = 0; n < 6; n++) {

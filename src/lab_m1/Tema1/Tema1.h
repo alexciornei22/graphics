@@ -64,6 +64,7 @@ namespace m1
 
         game::Shooter* selectedShooter = nullptr;
         int currentStars = 5;
+        int currentHealth = 3;
         glm::vec3 mouseCoordinates;
 
         std::vector<game::Shooter> shooters = {

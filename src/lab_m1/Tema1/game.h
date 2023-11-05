@@ -3,6 +3,7 @@
 #include <chrono>
 #include "lab_m1/Tema1/constants.h";
 #include "glm/glm.hpp"
+#include <core/window/window_object.h>
 
 using namespace std::chrono;
 
@@ -73,8 +74,10 @@ namespace game {
 	void generateEnemies(std::vector<Enemy>& enemies, std::vector<Shooter>& shooters);
 	void generateProjectiles(TableBoxData tableCoordinates[3][3], std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
 	void generateStars(std::vector<Star>& stars, milliseconds& lastGeneratedStars);
-	void checkHasSelectedShooter(glm::vec3 mouseCoordinates, std::vector<ItemBoxData> itemCoordinates,Shooter* &selectedShooter);
+	void checkEnemyReachedEnd(std::vector<Enemy>& enemies, int& currentHealth);
+	void checkHasSelectedShooter(glm::vec3 mouseCoordinates, std::vector<ItemBoxData> itemCoordinates, Shooter* &selectedShooter, int& currentStars);
 	void checkHasCollectedStar(glm::vec3 mouseCoordinates, std::vector<Star>& stars, int& currentStars);
-	void checkHasDroppedShooter(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3], Shooter*& selectedShooter);
+	void checkHasDroppedShooter(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3], Shooter*& selectedShooter, int& currentStars);
 	void checkHasClearedBox(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3]);
+	void checkIfGameEnded(int currentHealth, WindowObject* window);
 }

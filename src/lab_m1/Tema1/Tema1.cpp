@@ -70,7 +70,7 @@ void Tema1::Init()
         AddMeshToList(enemy);
     }
 
-    Mesh* projectile = object2D::CreateStar("projectile", glm::vec3(0, 0, 2), PROJECTILE_SIZE, glm::vec3(1, 1, 1));
+    Mesh* projectile = object2D::CreateStar("projectile", glm::vec3(0, 0, 5), PROJECTILE_SIZE, glm::vec3(1, 1, 1));
     AddMeshToList(projectile);
 }
 
@@ -144,7 +144,7 @@ void Tema1::Update(float deltaTimeSeconds)
     }
 
     modelMatrix = visMatrix * transform2D::Translate((NR_SHOOTERS + 1) * (SEPARATION + SQUARE_LENGTH), logicSpace.height - SEPARATION - SQUARE_LENGTH / 2);
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < currentHealth; i++) {
         RenderMesh2D(meshes["heart"], shaders["VertexColor"], modelMatrix);
         modelMatrix *= transform2D::Translate(HEART_SIZE + SEPARATION, 0);
     }
@@ -195,6 +195,10 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 
     animate::moveProjectilesRight(projectiles, deltaTime);
 
+    game::checkEnemyReachedEnd(enemies, currentHealth);
+
+    game::checkIfGameEnded(currentHealth, window);
+
     game::generateEnemies(enemies, shooters);
 
     game::generateProjectiles(tableCoordinates, projectiles, enemies);
@@ -234,7 +238,7 @@ void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
     if (button == GLFW_MOUSE_BUTTON_2) {
         game::checkHasCollectedStar(mouseCoordinates, stars, currentStars);
 
-        game::checkHasSelectedShooter(mouseCoordinates, itemCoordinates, selectedShooter);
+        game::checkHasSelectedShooter(mouseCoordinates, itemCoordinates, selectedShooter, currentStars);
     }
 
     if (button == GLFW_MOUSE_BUTTON_3) {
@@ -248,7 +252,7 @@ void Tema1::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
     transform2D::updateMouseCoordinates(logicSpace, viewSpace, mouseCoordinates, mouseX, mouseY);
 
     if (button == GLFW_MOUSE_BUTTON_2 && selectedShooter) {
-        game::checkHasDroppedShooter(mouseCoordinates, tableCoordinates, selectedShooter);
+        game::checkHasDroppedShooter(mouseCoordinates, tableCoordinates, selectedShooter, currentStars);
     }
 }
 
