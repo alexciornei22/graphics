@@ -34,8 +34,9 @@ namespace m1
         implemented::Camera *camera;
         glm::mat4 projectionMatrix;
         bool renderCameraTarget;
-
         // TODO(student): If you need any other class variables, define them here.
-
+        float fov = 60;
+        float orthoWindowLength = 20;
+        bool inProjectionModeOrtho = false;
     };
 }   // namespace m1
