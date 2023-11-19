@@ -74,6 +74,7 @@ namespace m1
             game::Shooter(3, glm::vec3(0, 1, 1)),
         };
         std::vector<game::Enemy> enemies;
+        std::vector<game::Heart> hearts = {game::Heart(), game::Heart(), game::Heart()};
         std::vector<game::Projectile> projectiles;
         std::vector<game::Star> stars;
         milliseconds lastGeneratedStars = duration_cast<milliseconds>(system_clock::now().time_since_epoch());

@@ -6,14 +6,10 @@ void animate::scaleDownShooters(game::TableBoxData tableCoordinates[3][3], float
         for (int j = 0; j < 3; j++) {
             game::TableBoxData& currentBox = tableCoordinates[i][j];
             if (currentBox.isShooterDeleted) {
-                currentBox.shooterScale -= currentBox.acceleration * deltaTime / 2;
-                currentBox.acceleration *= ACCELERATION;
+                currentBox.animateScale(deltaTime);
             }
-            if (currentBox.shooterScale < 0) {
-                currentBox.shooterScale = 1.0f;
-                currentBox.isShooterDeleted = false;
-                currentBox.shooter = nullptr;
-                currentBox.acceleration = START_SPEED;
+            if (currentBox.elapsedAnimationTime > 1.0f) {
+                currentBox.animationDone();
             }
         }
     }
@@ -23,12 +19,24 @@ void animate::scaleDownEnemies(std::vector<game::Enemy>& enemies, float deltaTim
 {
     for (auto& enemy : enemies) {
         if (enemy.health < 1) {
-            enemy.scale -= enemy.acceleration * deltaTime / 2;
-            enemy.acceleration *= ACCELERATION;
+            enemy.animateScale(deltaTime);
         }
 
         if (enemy.scale < 0) {
-            enemy.safeToDelete = true;
+            enemy.animationDone();
+        }
+    }
+}
+
+void animate::scaleDownHearts(std::vector<game::Heart>& hearts, float deltaTime)
+{
+    for (auto& heart : hearts) {
+        if (heart.removed) {
+            heart.animateScale(deltaTime);
+        }
+
+        if (heart.scale < 0) {
+            heart.animationDone();
         }
     }
 }

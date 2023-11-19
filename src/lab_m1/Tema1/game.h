@@ -8,6 +8,20 @@
 using namespace std::chrono;
 
 namespace game {
+	struct ScaleEaseInOutAnimatable
+	{
+		float elapsedAnimationTime = 0;
+		float scale = 1.0f;
+		inline float easeInOutCubic(float x) {
+			return x < 0.5 ? 4 * x * x * x : 1 - std::pow(-2 * x + 2, 3) / 2;
+		}
+		inline void animateScale(float deltaTime) {
+			elapsedAnimationTime += deltaTime;
+			scale = 1.0f - easeInOutCubic(elapsedAnimationTime);
+		}
+		virtual void animationDone() = 0;
+	};
+
 	struct Shooter
 	{
 		Shooter(int price, glm::vec3 color) : price(price), color(color) {}
@@ -15,7 +29,7 @@ namespace game {
 		glm::vec3 color;
 	};
 
-	struct Enemy
+	struct Enemy : public ScaleEaseInOutAnimatable
 	{
 		Enemy(int line, glm::vec3 coordinates, int type, glm::vec3 color) : line(line), coordinates(coordinates), type(type), color(color) {}
 		int health = 3;
@@ -24,8 +38,19 @@ namespace game {
 		glm::vec3 coordinates;
 		glm::vec3 color;
 		bool safeToDelete = false;
-		float scale = 1.0f;
-		float acceleration = START_SPEED;
+
+		inline void animationDone() override {
+			safeToDelete = true;
+		}
+	};
+
+	struct Heart : public ScaleEaseInOutAnimatable
+	{
+		bool removed = false;
+		bool safeToDelete = false;
+		inline void animationDone() override {
+			safeToDelete = true;
+		}
 	};
 
 	struct Projectile
@@ -53,7 +78,7 @@ namespace game {
 		Shooter* shooter;
 	};
 
-	struct TableBoxData
+	struct TableBoxData : public ScaleEaseInOutAnimatable
 	{
 		TableBoxData(int x, int y, int length) : x(x), y(y), length(length) {}
 		int x; // x coordinate of bottom-left corner
@@ -62,22 +87,26 @@ namespace game {
 		milliseconds timeLastShot = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 		Shooter *shooter = nullptr;
 		bool isShooterDeleted = false;
-		float shooterScale = 1.0f;
-		float acceleration = START_SPEED;
 
+		inline void animationDone() override {
+			scale = 1.0f;
+			elapsedAnimationTime = 0;
+			isShooterDeleted = false;
+			shooter = nullptr;
+		}
 		inline glm::vec3 getCenter() { return glm::vec3(x + SQUARE_LENGTH / 2, y + SQUARE_LENGTH / 2, 0); }
 	};
 
 	void checkProjectileEnemyCollisions(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
 	void checkShooterEnemyCollisions(game::TableBoxData tableCoordinates[3][3], std::vector<Enemy>& enemies);
-	void removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
+	void removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies, std::vector<Heart>& hearts);
 	void generateEnemies(std::vector<Enemy>& enemies, std::vector<Shooter>& shooters);
 	void generateProjectiles(TableBoxData tableCoordinates[3][3], std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
 	void generateStars(std::vector<Star>& stars, milliseconds& lastGeneratedStars);
-	void checkEnemyReachedEnd(std::vector<Enemy>& enemies, int& currentHealth);
+	void checkEnemyReachedEnd(std::vector<Enemy>& enemies, std::vector<Heart>& hearts);
 	void checkHasSelectedShooter(glm::vec3 mouseCoordinates, std::vector<ItemBoxData> itemCoordinates, Shooter* &selectedShooter, int& currentStars);
 	void checkHasCollectedStar(glm::vec3 mouseCoordinates, std::vector<Star>& stars, int& currentStars);
 	void checkHasDroppedShooter(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3], Shooter*& selectedShooter, int& currentStars);
 	void checkHasClearedBox(glm::vec3 mouseCoordinates, TableBoxData tableCoordinates[3][3]);
-	void checkIfGameEnded(int currentHealth, WindowObject* window);
+	void checkIfGameEnded(std::vector<Heart>& hearts, WindowObject* window);
 }

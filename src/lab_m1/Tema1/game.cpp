@@ -1,13 +1,17 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include "lab_m1/Tema1/game.h"
+#include "lab_m1/Tema1/animate.h"
 
 void game::checkProjectileEnemyCollisions(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies)
 {
 	for (auto& projectile : projectiles) {
 		for (auto& enemy : enemies) {
-			if (projectile.type == enemy.type && glm::distance(projectile.coordinates, enemy.coordinates) < (PROJECTILE_SIZE + ENEMY_SIZE) / 3) {
+			if (
+                projectile.type == enemy.type && 
+                enemy.health &&
+                glm::distance(projectile.coordinates, enemy.coordinates) < (PROJECTILE_SIZE + ENEMY_SIZE) / 3
+                ) {
 				enemy.health--;
 				projectile.health--;
 			}
@@ -35,13 +39,16 @@ bool enemyReachedEnd(game::Enemy enemy) {
 bool projectileReachedEnd(game::Projectile projectile) {
     return projectile.coordinates.x > 1280;
 }
-bool isSafeToDelete(game::Enemy enemy) {
+bool isEnemySafeToDelete(game::Enemy enemy) {
     return enemy.safeToDelete;
+}
+bool isHeartSafeToDelete(game::Heart heart) {
+    return heart.safeToDelete;
 }
 bool isProjectileDead(game::Projectile projectile) {
     return projectile.health < 1;
 }
-void game::removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies)
+void game::removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies, std::vector<Heart>& hearts)
 {
     enemies.erase(
         remove_if(enemies.begin(), enemies.end(), enemyReachedEnd),
@@ -49,8 +56,13 @@ void game::removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector
     );
 
     enemies.erase(
-        remove_if(enemies.begin(), enemies.end(), isSafeToDelete),
+        remove_if(enemies.begin(), enemies.end(), isEnemySafeToDelete),
         enemies.end()
+    );
+
+    hearts.erase(
+        remove_if(hearts.begin(), hearts.end(), isHeartSafeToDelete),
+        hearts.end()
     );
 
     projectiles.erase(
@@ -115,9 +127,14 @@ void game::generateStars(std::vector<Star>& stars, milliseconds& lastGeneratedSt
     }
 }
 
-void game::checkEnemyReachedEnd(std::vector<Enemy>& enemies, int& currentHealth)
+void game::checkEnemyReachedEnd(std::vector<Enemy>& enemies, std::vector<Heart>& hearts)
 {
-    currentHealth -= std::count_if(enemies.begin(), enemies.end(), enemyReachedEnd);
+    int enemiesAtEnd = std::count_if(enemies.begin(), enemies.end(), enemyReachedEnd);
+    for (int i = 0; i < enemiesAtEnd; i++) {
+        while (hearts[hearts.size() - i - 1].removed) i++;
+        if (i < 0) break;
+        hearts[hearts.size() - i - 1].removed = true;
+    }
 }
 
 void game::checkHasSelectedShooter(glm::vec3 mouseCoordinates, std::vector<ItemBoxData> itemCoordinates, Shooter*& selectedShooter, int& currentStars)
@@ -166,8 +183,9 @@ void game::checkHasDroppedShooter(glm::vec3 mouseCoordinates, TableBoxData table
                 mouseCoordinates.x < currentBox.x + currentBox.length &&
                 mouseCoordinates.y > currentBox.y &&
                 mouseCoordinates.y < currentBox.y + currentBox.length &&
-                currentBox.shooter == nullptr
+                currentBox.shooter == nullptr || currentBox.isShooterDeleted == true
                 ) {
+                currentBox.animationDone();
                 currentBox.shooter = selectedShooter;
                 currentStars -= selectedShooter->price;
                 break;
@@ -197,8 +215,8 @@ void game::checkHasClearedBox(glm::vec3 mouseCoordinates, TableBoxData tableCoor
     }
 }
 
-void game::checkIfGameEnded(int currentHealth, WindowObject* window)
+void game::checkIfGameEnded(std::vector<Heart>& hearts, WindowObject* window)
 {
-    if (currentHealth <= 0)
+    if (hearts.size() <= 0)
         window->Close();
 }

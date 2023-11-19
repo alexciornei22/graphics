@@ -114,7 +114,7 @@ void Tema1::Update(float deltaTimeSeconds)
                 glm::mat3 tempModelMatrix = modelMatrix;
 
                 tempModelMatrix *= transform2D::Translate(SQUARE_LENGTH / 3, SQUARE_LENGTH / 2);
-                tempModelMatrix *= transform2D::Scale(currentBox.shooterScale, currentBox.shooterScale);
+                tempModelMatrix *= transform2D::Scale(currentBox.scale, currentBox.scale);
                 RenderMesh2D(meshes["shooter"], tempModelMatrix, currentBox.shooter->color);
             }
 
@@ -145,9 +145,11 @@ void Tema1::Update(float deltaTimeSeconds)
     }
 
     modelMatrix = visMatrix * transform2D::Translate((NR_SHOOTERS + 1) * (SEPARATION + SQUARE_LENGTH), logicSpace.height - SEPARATION - SQUARE_LENGTH / 2);
-    for (int i = 0; i < currentHealth; i++) {
+    for (auto &heart : hearts) {
+        modelMatrix *= transform2D::Scale(heart.scale, heart.scale);
         RenderMesh2D(meshes["heart"], shaders["VertexColor"], modelMatrix);
         modelMatrix *= transform2D::Translate(HEART_SIZE + SEPARATION, 0);
+        modelMatrix *= transform2D::Scale(1 / heart.scale, 1 / heart.scale);
     }
 
     for (int i = 0; i < currentStars; i++) {
@@ -193,13 +195,15 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 
     animate::scaleDownEnemies(enemies, deltaTime);
 
+    animate::scaleDownHearts(hearts, deltaTime);
+
     animate::moveEnemiesLeft(enemies, deltaTime);
 
     animate::moveProjectilesRight(projectiles, deltaTime);
 
-    game::checkEnemyReachedEnd(enemies, currentHealth);
+    game::checkEnemyReachedEnd(enemies, hearts);
 
-    game::checkIfGameEnded(currentHealth, window);
+    game::checkIfGameEnded(hearts, window);
 
     game::generateEnemies(enemies, shooters);
 
@@ -211,7 +215,7 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 
     game::checkShooterEnemyCollisions(tableCoordinates, enemies);
 
-    game::removeInvalidPieces(projectiles, enemies);
+    game::removeInvalidPieces(projectiles, enemies, hearts);
 }
 
 
