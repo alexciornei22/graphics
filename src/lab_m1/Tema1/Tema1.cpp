@@ -205,7 +205,7 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 
     game::checkIfGameEnded(hearts, window);
 
-    game::generateEnemies(enemies, shooters);
+    game::generateEnemies(enemies, shooters, lastGeneratedEnemies);
 
     game::generateProjectiles(tableCoordinates, projectiles, enemies);
 

@@ -76,18 +76,26 @@ void game::removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector
     );
 }
 
-void game::generateEnemies(std::vector<Enemy>& enemies, std::vector<Shooter>& shooters)
+void game::generateEnemies(std::vector<Enemy>& enemies, std::vector<Shooter>& shooters, milliseconds& lastGeneratedEnemies)
 {
+    if (system_clock::now().time_since_epoch() - lastGeneratedEnemies < milliseconds(5000))
+        return;
+
+    lastGeneratedEnemies = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     int random = rand();
-    while (random && random % 400 == 0) {
+    bool linesGenerated[3] = {false, false, false};
+    do {
         int line = rand() % 3;
         int type = rand() % 4;
-        enemies.push_back(
-            game::Enemy(line, glm::vec3(1400, SEPARATION + SQUARE_LENGTH / 2 + line * (SQUARE_LENGTH + SEPARATION), 1), type, shooters[type].color)
-        );
+        if (!linesGenerated[line]) {
+            enemies.push_back(
+                game::Enemy(line, glm::vec3(1400, SEPARATION + SQUARE_LENGTH / 2 + line * (SQUARE_LENGTH + SEPARATION), 1), type, shooters[type].color)
+            );
+            linesGenerated[line] = true;
+        }
 
-        random /= 400;
-    }
+        random /= 3;
+    } while (random && random % 3 == 0);
 }
 
 void game::generateProjectiles(TableBoxData tableCoordinates[3][3], std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies)

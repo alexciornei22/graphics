@@ -78,5 +78,6 @@ namespace m1
         std::vector<game::Projectile> projectiles;
         std::vector<game::Star> stars;
         milliseconds lastGeneratedStars = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+        milliseconds lastGeneratedEnemies = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     };
 }   // namespace m1

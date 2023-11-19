@@ -100,7 +100,7 @@ namespace game {
 	void checkProjectileEnemyCollisions(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
 	void checkShooterEnemyCollisions(game::TableBoxData tableCoordinates[3][3], std::vector<Enemy>& enemies);
 	void removeInvalidPieces(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies, std::vector<Heart>& hearts);
-	void generateEnemies(std::vector<Enemy>& enemies, std::vector<Shooter>& shooters);
+	void generateEnemies(std::vector<Enemy>& enemies, std::vector<Shooter>& shooters, milliseconds& lastGeneratedEnemies);
 	void generateProjectiles(TableBoxData tableCoordinates[3][3], std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies);
 	void generateStars(std::vector<Star>& stars, milliseconds& lastGeneratedStars);
 	void checkEnemyReachedEnd(std::vector<Enemy>& enemies, std::vector<Heart>& hearts);

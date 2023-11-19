@@ -46,7 +46,7 @@ void animate::moveEnemiesLeft(std::vector<game::Enemy>& enemies, float deltaTime
     for (auto& enemy : enemies) {
         if (enemy.health < 1) continue;
 
-        enemy.coordinates -= glm::vec3(100 * deltaTime, 0, 0);
+        enemy.coordinates -= glm::vec3(75 * deltaTime, 0, 0);
     }
 }
 
