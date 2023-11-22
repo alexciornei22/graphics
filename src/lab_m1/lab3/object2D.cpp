@@ -6,7 +6,7 @@
 #include "utils/gl_utils.h"
 
 
-Mesh* object2D::CreateSquare(
+Mesh* shapes::CreateSquare(
     const std::string &name,
     glm::vec3 leftBottomCorner,
     float length,
@@ -38,7 +38,7 @@ Mesh* object2D::CreateSquare(
     return square;
 }
 
-Mesh* object2D::CreateRect(
+Mesh* shapes::CreateRect(
     const std::string& name,
     glm::vec3 leftBottomCorner,
     float length,
