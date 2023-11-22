@@ -1,11 +1,11 @@
-#include "lab_m1/Tema1/Tema1.h"
+#include "lab_m1/PvZ/PvZ.h"
 
 #include <vector>
 #include <iostream>
 
-#include "lab_m1/Tema1/object2D.h"
-#include "lab_m1/Tema1/constants.h"
-#include "lab_m1/Tema1/animate.h"
+#include "lab_m1/PvZ/object2D.h"
+#include "lab_m1/PvZ/constants.h"
+#include "lab_m1/PvZ/animate.h"
 
 using namespace std;
 using namespace m1;
@@ -16,17 +16,17 @@ using namespace m1;
  */
 
 
-Tema1::Tema1()
+PvZ::PvZ()
 {
 }
 
 
-Tema1::~Tema1()
+PvZ::~PvZ()
 {
 }
 
 
-void Tema1::Init()
+void PvZ::Init()
 {
     glm::ivec2 resolution = window->GetResolution();
     auto camera = GetSceneCamera();
@@ -76,12 +76,12 @@ void Tema1::Init()
 }
 
 
-void Tema1::FrameStart()
+void PvZ::FrameStart()
 {
 }
 
 
-void Tema1::Update(float deltaTimeSeconds)
+void PvZ::Update(float deltaTimeSeconds)
 {
     SetViewportArea(viewSpace, backgroundColor, true);
 
@@ -178,7 +178,7 @@ void Tema1::Update(float deltaTimeSeconds)
 }
 
 
-void Tema1::FrameEnd()
+void PvZ::FrameEnd()
 {
 }
 
@@ -189,7 +189,7 @@ void Tema1::FrameEnd()
  */
 
 
-void Tema1::OnInputUpdate(float deltaTime, int mods)
+void PvZ::OnInputUpdate(float deltaTime, int mods)
 {
     animate::scaleDownShooters(tableCoordinates, deltaTime);
 
@@ -219,25 +219,25 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 }
 
 
-void Tema1::OnKeyPress(int key, int mods)
+void PvZ::OnKeyPress(int key, int mods)
 {
     // Add key press event
 }
 
 
-void Tema1::OnKeyRelease(int key, int mods)
+void PvZ::OnKeyRelease(int key, int mods)
 {
     // Add key release event
 }
 
 
-void Tema1::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
+void PvZ::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
     transform2D::updateMouseCoordinates(logicSpace, viewSpace, mouseCoordinates, mouseX, mouseY);
 }
 
 
-void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
+void PvZ::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {
     transform2D::updateMouseCoordinates(logicSpace, viewSpace, mouseCoordinates, mouseX, mouseY);
 
@@ -253,7 +253,7 @@ void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 }
 
 
-void Tema1::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
+void PvZ::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
 {
     transform2D::updateMouseCoordinates(logicSpace, viewSpace, mouseCoordinates, mouseX, mouseY);
 
@@ -263,11 +263,11 @@ void Tema1::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
 }
 
 
-void Tema1::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)
+void PvZ::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)
 {
 }
 
-void Tema1::OnWindowResize(int width, int height)
+void PvZ::OnWindowResize(int width, int height)
 {
     viewSpace = transform2D::CoordinateSpace(0, 0, width, height);
     SetViewportArea(viewSpace, backgroundColor, true);
@@ -276,7 +276,7 @@ void Tema1::OnWindowResize(int width, int height)
     visMatrix = transform2D::VisualizationTransf2D(logicSpace, viewSpace);
 }
 
-void Tema1::SetViewportArea(const transform2D::CoordinateSpace& viewSpace, glm::vec3 colorColor, bool clear)
+void PvZ::SetViewportArea(const transform2D::CoordinateSpace& viewSpace, glm::vec3 colorColor, bool clear)
 {
     glViewport(viewSpace.x, viewSpace.y, viewSpace.width, viewSpace.height);
 

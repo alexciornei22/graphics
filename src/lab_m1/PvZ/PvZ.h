@@ -2,19 +2,19 @@
 
 #include <chrono>
 #include "components/simple_scene.h"
-#include "lab_m1/Tema1/transform2D.h"
-#include "lab_m1/Tema1/game.h"
+#include "lab_m1/PvZ/transform2D.h"
+#include "lab_m1/PvZ/game.h"
 
 using namespace std::chrono;
 
 namespace m1
 {
-    class Tema1 : public gfxc::SimpleScene
+    class PvZ : public gfxc::SimpleScene
     {
     public:
 
-        Tema1();
-        ~Tema1();
+        PvZ();
+        ~PvZ();
 
         void Init() override;
 

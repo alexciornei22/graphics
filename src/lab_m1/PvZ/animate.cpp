@@ -1,4 +1,4 @@
-#include "lab_m1/Tema1/animate.h"
+#include "lab_m1/PvZ/animate.h"
 
 void animate::scaleDownShooters(game::TableBoxData tableCoordinates[3][3], float deltaTime)
 {

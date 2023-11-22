@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include "lab_m1/Tema1/animate.h"
+#include "lab_m1/PvZ/animate.h"
 
 void game::checkProjectileEnemyCollisions(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies)
 {

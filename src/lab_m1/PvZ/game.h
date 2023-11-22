@@ -1,7 +1,7 @@
 #pragma once
 
 #include <chrono>
-#include "lab_m1/Tema1/constants.h";
+#include "lab_m1/PvZ/constants.h"
 #include "glm/glm.hpp"
 #include <core/window/window_object.h>
 
