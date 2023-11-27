@@ -11,4 +11,4 @@
 #include "lab_m1/lab8/lab8.h"
 #include "lab_m1/lab9/lab9.h"
 #include "lab_m1/PvZ/PvZ.h"
-
+#include "lab_m1/WorldOfTanks/WorldOfTanks.h"
