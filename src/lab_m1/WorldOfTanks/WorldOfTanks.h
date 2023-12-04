@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Projectile.h"
 #include "Tank.h"
 #include "ThirdPersonCamera.h"
 #include "ThirdPersonCameraInput.h"
@@ -36,12 +37,17 @@ namespace m1
         void RenderMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix) override;
 
         void OnInputUpdate(float deltaTime, int mods) override;
+        void OnMouseBtnPress(int mouseX, int mouseY, int button, int mods) override;
+
+        void TranslateProjectiles();
      protected:
         glm::mat4 projectionMatrix = glm::mat4(1.f);
         ThirdPersonCamera *camera;
         ThirdPersonCameraInput *cameraInput;
-
         tank::Tank *playerTank;
+
+        std::vector<tank::Projectile> projectiles;
+        
         ViewportArea miniViewportArea;
     };
 }   // namespace m1

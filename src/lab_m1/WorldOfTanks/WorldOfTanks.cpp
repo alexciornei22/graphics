@@ -1,4 +1,6 @@
 #include "WorldOfTanks.h"
+
+#include <complex>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -55,10 +57,12 @@ void WorldOfTanks::Init()
     camera = new ThirdPersonCamera(glm::vec3(0, 1, 2), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
     cameraInput = new ThirdPersonCameraInput(camera);
     playerTank = new tank::Tank(tank::Type::TIGER_1, glm::vec3(0, 0, 0), camera->forward);
+    
     auto defaultCameraInput = GetCameraInput();
     defaultCameraInput->SetActive(false);
     window->DisablePointer();
     camera->SetTarget(playerTank);
+    
     projectionMatrix = glm::perspective(glm::radians(60.f), window->props.aspectRatio, 0.01f, 200.0f);
 
     // Sets the resolution of the small viewport
@@ -75,9 +79,6 @@ void WorldOfTanks::FrameStart()
 
 void WorldOfTanks::Update(float deltaTimeSeconds)
 {
-    glLineWidth(3);
-    glPointSize(5);
-
     // Sets the screen area where to draw
     glm::ivec2 resolution = window->GetResolution();
     glViewport(0, 0, resolution.x, resolution.y);
@@ -87,6 +88,14 @@ void WorldOfTanks::Update(float deltaTimeSeconds)
     modelMatrix = glm::translate(modelMatrix, camera->GetTargetPosition());
     modelMatrix = glm::scale(modelMatrix, glm::vec3(0.1f));
     RenderMesh(meshes["sphere"], shaders["VertexNormal"], modelMatrix);
+
+    for (auto projectile : projectiles)
+    {
+        modelMatrix = translate(glm::mat4(1.f), projectile.position);
+        modelMatrix = scale(modelMatrix, glm::vec3(0.2f));
+        RenderMesh(meshes["sphere"], shaders["VertexNormal"], modelMatrix);
+    }
+    
     DrawCoordinateSystem(camera->GetViewMatrix(), projectionMatrix);
 
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -136,5 +145,15 @@ void WorldOfTanks::OnInputUpdate(float deltaTime, int mods)
     if (!window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
     {
         playerTank->RotateTurret_OY(deltaTime);
+    }
+
+    TranslateProjectiles();
+}
+
+void WorldOfTanks::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_2)
+    {
+        projectiles.emplace_back(playerTank->FireProjectile());
     }
 }
