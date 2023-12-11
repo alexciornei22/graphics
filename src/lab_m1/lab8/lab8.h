@@ -35,8 +35,13 @@ namespace m1
         unsigned int materialShininess;
         float materialKd;
         float materialKs;
+        float cutOff = 30;
 
         // TODO(student): If you need any other class variables, define them here.
-
+        bool isSpotlight = false;
+        glm::vec3 point_light_pos[2] = {
+            glm::vec3(0, 1, 2),
+            glm::vec3(1, 2, -2),
+        };
     };
 }   // namespace m1

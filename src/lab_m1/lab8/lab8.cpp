@@ -112,11 +112,11 @@ void Lab8::Update(float deltaTimeSeconds)
         RenderSimpleMesh(meshes["plane"], shaders["LabShader"], modelMatrix);
 
     }
-
-    // Render the point light in the scene
+    
+    for (int i = 0; i < 2; i++)
     {
         glm::mat4 modelMatrix = glm::mat4(1);
-        modelMatrix = glm::translate(modelMatrix, lightPosition);
+        modelMatrix = glm::translate(modelMatrix, point_light_pos[i]);
         modelMatrix = glm::scale(modelMatrix, glm::vec3(0.1f));
         RenderMesh(meshes["sphere"], shaders["Simple"], modelMatrix);
     }
@@ -138,8 +138,8 @@ void Lab8::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelM
     glUseProgram(shader->program);
 
     // Set shader uniforms for light properties
-    int light_position = glGetUniformLocation(shader->program, "light_position");
-    glUniform3f(light_position, lightPosition.x, lightPosition.y, lightPosition.z);
+    int light_position = glGetUniformLocation(shader->program, "point_light_pos");
+    glUniform3fv(light_position, 2, glm::value_ptr(point_light_pos[0]));
 
     int light_direction = glGetUniformLocation(shader->program, "light_direction");
     glUniform3f(light_direction, lightDirection.x, lightDirection.y, lightDirection.z);
@@ -162,8 +162,13 @@ void Lab8::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelM
     int object_color = glGetUniformLocation(shader->program, "object_color");
     glUniform3f(object_color, color.r, color.g, color.b);
 
+    int cut_off = glGetUniformLocation(shader->program, "cutOff");
+    glUniform1f(cut_off, cutOff);
+    
     // TODO(student): Set any other shader uniforms that you need
-
+    int spotlight_location = glGetUniformLocation(shader->program, "is_spotlight");
+    glUniform1i(spotlight_location, isSpotlight);
+    
     // Bind model matrix
     GLint loc_model_matrix = glGetUniformLocation(shader->program, "Model");
     glUniformMatrix4fv(loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
@@ -210,7 +215,13 @@ void Lab8::OnInputUpdate(float deltaTime, int mods)
         if (window->KeyHold(GLFW_KEY_Q)) lightPosition -= up * deltaTime * speed;
 
         // TODO(student): Set any other keys that you might need
-
+        if (window->KeyHold(GLFW_KEY_I)) lightDirection -= forward * deltaTime * 10.f;
+        if (window->KeyHold(GLFW_KEY_K)) lightDirection -= right * deltaTime * 10.f;
+        if (window->KeyHold(GLFW_KEY_J)) lightDirection += forward * deltaTime * 10.f;
+        if (window->KeyHold(GLFW_KEY_L)) lightDirection += right * deltaTime * 10.f;
+        if (window->KeyHold(GLFW_KEY_U)) cutOff += deltaTime * 10;
+        if (window->KeyHold(GLFW_KEY_O)) cutOff -= deltaTime * 10;
+        lightDirection = glm::normalize(lightDirection);
     }
 }
 
@@ -220,7 +231,10 @@ void Lab8::OnKeyPress(int key, int mods)
     // Add key press event
 
     // TODO(student): Set keys that you might need
-
+    if (key == GLFW_KEY_F)
+    {
+        isSpotlight = !isSpotlight;
+    }
 }
 
 
