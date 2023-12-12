@@ -96,9 +96,10 @@ void Lab9::Init()
 
         vector<glm::vec2> textureCoords
         {
-            // TODO(student): Complete texture coordinates for the square
-            glm::vec2(0.0f, 0.0f)
-
+            glm::vec2(0.0f, 0.0f),
+            glm::vec2(0.0f, 1.0f),
+            glm::vec2(1.0f, 1.0f),
+            glm::vec2(1.0f, 0.0f)
         };
 
         vector<unsigned int> indices =
@@ -150,7 +151,7 @@ void Lab9::Update(float deltaTimeSeconds)
         glm::mat4 modelMatrix = glm::mat4(1);
         modelMatrix = glm::translate(modelMatrix, glm::vec3(1, 1, -3));
         modelMatrix = glm::scale(modelMatrix, glm::vec3(2));
-        RenderSimpleMesh(meshes["sphere"], shaders["LabShader"], modelMatrix, mapTextures["earth"]);
+        RenderSimpleMesh(meshes["sphere"], shaders["LabShader"], modelMatrix, mapTextures["earth"], nullptr, true);
     }
 
     {
@@ -173,7 +174,7 @@ void Lab9::Update(float deltaTimeSeconds)
         glm::mat4 modelMatrix = glm::mat4(1);
         modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 0.5f, 0.0f));
         modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f));
-        RenderSimpleMesh(meshes["square"], shaders["LabShader"], modelMatrix, mapTextures["grass"]);
+        RenderSimpleMesh(meshes["square"], shaders["LabShader"], modelMatrix, mapTextures["grass"], mapTextures["random"], false, true);
     }
 
     {
@@ -191,7 +192,7 @@ void Lab9::FrameEnd()
 }
 
 
-void Lab9::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelMatrix, Texture2D* texture1, Texture2D* texture2)
+void Lab9::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelMatrix, Texture2D* texture1, Texture2D* texture2, bool cycle, bool billboard)
 {
     if (!mesh || !shader || !shader->GetProgramID())
         return;
@@ -212,26 +213,27 @@ void Lab9::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelM
     glm::mat4 projectionMatrix = GetSceneCamera()->GetProjectionMatrix();
     int loc_projection_matrix = glGetUniformLocation(shader->program, "Projection");
     glUniformMatrix4fv(loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-
-    // TODO(student): Set any other shader uniforms that you need
-
+    
     if (texture1)
     {
-        // TODO(student): Do these:
-        // - activate texture location 0
-        // - bind the texture1 ID
-        // - send theuniform value
-
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1->GetTextureID());
+        glUniform1i(glGetUniformLocation(shader->program, "texture_1"), 0);
+        glUniform1i(glGetUniformLocation(shader->program, "mixed"), false);
     }
 
     if (texture2)
     {
-        // TODO(student): Do these:
-        // - activate texture location 1
-        // - bind the texture2 ID
-        // - send the uniform value
-
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2->GetTextureID());
+        glUniform1i(glGetUniformLocation(shader->program, "texture_2"), 1);
+        glUniform1i(glGetUniformLocation(shader->program, "mixed"), true);
     }
+
+    glUniform1i(glGetUniformLocation(shader->program, "cycle"), cycle);
+    glUniform1f(glGetUniformLocation(shader->program, "elapsed_time"), Engine::GetElapsedTime());
+
+    glUniform1i(glGetUniformLocation(shader->program, "billboard"), billboard);
 
     // Draw the object
     glBindVertexArray(mesh->GetBuffers()->m_VAO);
@@ -246,30 +248,37 @@ Texture2D* Lab9::CreateRandomTexture(unsigned int width, unsigned int height)
     unsigned int size = width * height * channels;
     unsigned char* data = new unsigned char[size];
 
-    // TODO(student): Generate random texture data
-
-    // TODO(student): Generate and bind the new texture ID
-
+    for (size_t i = 0; i < size; ++i)
+        data[i] = rand() % 256;
+    
+    glGenTextures(1, &textureID);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    
     if (GLEW_EXT_texture_filter_anisotropic) {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4);
     }
-    // TODO(student): Set the texture parameters (MIN_FILTER, MAG_FILTER and WRAPPING MODE) using glTexParameteri
-
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     CheckOpenGLError();
 
     // Use glTexImage2D to set the texture data
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
-    // TODO(student): Generate texture mip-maps
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     CheckOpenGLError();
 
     // Save the texture into a wrapper Texture2D class for using easier later during rendering phase
-    Texture2D* texture = new Texture2D();
+    auto texture = new Texture2D();
     texture->Init(textureID, width, height, channels);
 
-    SAFE_FREE_ARRAY(data);
+    SAFE_FREE_ARRAY(data)
     return texture;
 }
 

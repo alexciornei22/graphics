@@ -11,13 +11,17 @@ uniform mat4 Model;
 uniform mat4 View;
 uniform mat4 Projection;
 
+uniform bool billboard;
+
 // Output
 out vec2 texcoord;
 
 
 void main()
 {
-    // TODO(student): Pass v_texture_coord as output to fragment shader
-
-    gl_Position = Projection * View * Model * vec4(v_position, 1.0);
+    texcoord = v_texture_coord;
+    mat4 MVP = Projection * View * Model;
+    
+    vec3 pos = (billboard) ? inverse(mat3(View)) * v_position : v_position;
+    gl_Position = MVP * vec4(pos, 1.0);
 }
