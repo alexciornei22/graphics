@@ -29,6 +29,8 @@ namespace m1
         void Init() override;
 
      private:
+        void InitTankMeshes();
+        
         void FrameStart() override;
         void Update(float deltaTimeSeconds) override;
         void FrameEnd() override;
@@ -40,7 +42,11 @@ namespace m1
         void OnInputUpdate(float deltaTime, int mods) override;
         void OnMouseBtnPress(int mouseX, int mouseY, int button, int mods) override;
 
+        void IncrementTankTimes(float deltaTime);
+        void UpdateTankStates();
         void TranslateProjectiles();
+        void ExecuteTankActions(float deltaTime);
+        
      protected:
         glm::mat4 perspectiveProjection = glm::perspective(glm::radians(60.f), window->props.aspectRatio, 0.01f, 200.0f);
         glm::mat4 orthoProjection = glm::ortho(0.f, 1280.f, 0.f, 720.f, 0.1f, 200.f);
@@ -48,7 +54,7 @@ namespace m1
         ThirdPersonCamera *orthoCamera;
         ThirdPersonCameraInput *cameraInput;
         tank::Tank *playerTank;
-
+        std::vector<tank::Tank> enemyTanks;
         std::vector<tank::Projectile> projectiles;
         
         ViewportArea miniViewportArea;

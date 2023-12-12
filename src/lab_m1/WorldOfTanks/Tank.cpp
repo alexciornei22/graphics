@@ -13,9 +13,9 @@ Tank::Tank(Type type, glm::vec3 position, glm::vec3 forward)
 {
     this->type = type;
     this->position = position;
-    this->forward = glm::vec3(forward.x, 0, forward.z);
+    this->forward = normalize(glm::vec3(forward.x, 0, forward.z));
     this->right = cross(forward, glm::vec3(0, 1, 0));
-    this->gunForward = glm::vec3(forward.x, 0, forward.z);
+    this->gunForward = normalize(glm::vec3(forward.x, 0, forward.z));
 }
 
 void Tank::MoveForward(float distance)
@@ -26,7 +26,6 @@ void Tank::MoveForward(float distance)
 
 void Tank::RotateHull_OY(float angle)
 {
-    hullRotation -= angle;
     if (turretRotationActive != turretRotationTarget)
     {
         turretRotationActive -= angle;
@@ -80,14 +79,42 @@ Projectile Tank::FireProjectile()
 void Tank::IncrementTime(float deltaTime)
 {
     timeLastShot += deltaTime;
+    timeCurrentState += deltaTime;
+}
+
+void Tank::ExecuteState(float deltaTime)
+{
+    switch (state)
+    {
+    case State::MoveForward: MoveForward(deltaTime); break;
+    case State::MoveBackward: MoveForward(-deltaTime); break;
+    case State::RotateLeft: RotateHull_OY(deltaTime / 3); break;
+    case State::RotateRight: RotateHull_OY(-deltaTime / 3);
+    }
+}
+
+void Tank::UpdateState()
+{
+    if (timeCurrentState < TANK_STATE_INTERVAL) return;
+
+    state = GetRandomState();
+    timeCurrentState = 0;
 }
 
 std::string tank::GetTypeString(Type type)
 {
     switch (type) {
-    case Type::TIGER_1:
+    case TIGER_1:
         return "tiger1";
+    case HELLCAT:
+        return "hellcat";
     default:
             return "";
     }
+}
+
+State tank::GetRandomState()
+{
+    const int random = rand() % STATES.size();
+    return STATES[random];
 }

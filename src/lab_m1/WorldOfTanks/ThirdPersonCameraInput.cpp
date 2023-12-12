@@ -1,7 +1,4 @@
 ﻿#include "ThirdPersonCameraInput.h"
-
-#include <iostream>
-
 #include "core/engine.h"
 
 void ThirdPersonCameraInput::OnInputUpdate(float deltaTime, int mods)
