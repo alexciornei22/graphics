@@ -17,6 +17,6 @@ namespace tank
         
         glm::vec3 position;
         glm::vec3 forward;
-        float speed = 1.f;
+        float speed = 0.5f;
     };
 }

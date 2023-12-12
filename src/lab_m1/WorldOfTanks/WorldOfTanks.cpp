@@ -4,8 +4,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
+#include <glm/gtx/vector_angle.hpp>
 #include "Tank.h"
+#include "lab_m1/lab3/object2D.h"
 
 using namespace std;
 using namespace m1;
@@ -29,6 +30,24 @@ WorldOfTanks::~WorldOfTanks()
 
 void WorldOfTanks::Init()
 {
+    {
+        Mesh* mesh = shapes::CreateSquare("square", glm::vec3(0), 1, glm::vec3(0));
+        meshes[mesh->GetMeshID()] = mesh;
+    }
+    {
+        Mesh* mesh = shapes::CreateSquare("filled_square", glm::vec3(0), 1, glm::vec3(0), true);
+        meshes[mesh->GetMeshID()] = mesh;
+    }
+    {
+        Mesh* mesh = new Mesh("plane50");
+        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "plane50.obj");
+        meshes[mesh->GetMeshID()] = mesh;
+    }
+    {
+        Mesh* mesh = new Mesh("shell1");
+        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks"), "shell1.obj");
+        meshes[mesh->GetMeshID()] = mesh;
+    }
     {
         Mesh* mesh = new Mesh("tiger1_hull");
         mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/tiger1"), "hull.obj");
@@ -54,17 +73,17 @@ void WorldOfTanks::Init()
         mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "sphere.obj");
         meshes[mesh->GetMeshID()] = mesh;
     }
+    
     camera = new ThirdPersonCamera(glm::vec3(0, 1, 2), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
+    orthoCamera = new ThirdPersonCamera(glm::vec3(0, 0, 50), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
     cameraInput = new ThirdPersonCameraInput(camera);
-    playerTank = new tank::Tank(tank::Type::TIGER_1, glm::vec3(0, 0, 0), camera->forward);
+    playerTank = new tank::Tank(tank::TIGER_1, glm::vec3(0, 0, 0), camera->forward);
     
     auto defaultCameraInput = GetCameraInput();
     defaultCameraInput->SetActive(false);
     window->DisablePointer();
     camera->SetTarget(playerTank);
     
-    projectionMatrix = glm::perspective(glm::radians(60.f), window->props.aspectRatio, 0.01f, 200.0f);
-
     // Sets the resolution of the small viewport
     glm::ivec2 resolution = window->GetResolution();
     miniViewportArea = ViewportArea(50, 50, resolution.x / 5.f, resolution.y / 5.f);
@@ -73,7 +92,7 @@ void WorldOfTanks::Init()
 void WorldOfTanks::FrameStart()
 {
     // Clears the color buffer (using the previously set color) and depth buffer
-    glClearColor(0, 0, 0, 1);
+    glClearColor(0.3, 0.3, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -88,24 +107,30 @@ void WorldOfTanks::Update(float deltaTimeSeconds)
     modelMatrix = glm::translate(modelMatrix, camera->GetTargetPosition());
     modelMatrix = glm::scale(modelMatrix, glm::vec3(0.1f));
     RenderMesh(meshes["sphere"], shaders["VertexNormal"], modelMatrix);
-
+    
     for (auto projectile : projectiles)
     {
         modelMatrix = translate(glm::mat4(1.f), projectile.position);
-        modelMatrix = scale(modelMatrix, glm::vec3(0.2f));
-        RenderMesh(meshes["sphere"], shaders["VertexNormal"], modelMatrix);
+        modelMatrix = scale(modelMatrix, glm::vec3(0.1f));
+        modelMatrix = rotate(modelMatrix, glm::pi<float>() / 2, glm::vec3(1, 0, 0));
+        modelMatrix = rotate(modelMatrix, orientedAngle(projectile.forward, glm::vec3(0, 0, 1), glm::vec3(0, 1, 0)), glm::vec3(0, 0, 1));
+        RenderMesh(meshes["shell1"], shaders["VertexColor"], modelMatrix);
     }
+
+    RenderMesh(meshes["plane50"], shaders["VertexNormal"], glm::mat4(1.f));
+    DrawCoordinateSystem(camera->GetViewMatrix(), perspectiveProjection);
     
-    DrawCoordinateSystem(camera->GetViewMatrix(), projectionMatrix);
+    modelMatrix = translate(glm::mat4(1), glm::vec3(1280 / 2, 100, 0));
+    modelMatrix = scale(modelMatrix, glm::vec3(100));
+    glm::mat4 shellModel = scale(modelMatrix, glm::vec3(0.3f));
+    RenderMeshOrtho(meshes["shell1"], shaders["VertexNormal"], shellModel);
+    modelMatrix = translate(modelMatrix, glm::vec3(-0.5f, -0.5f, 0));
+    RenderMeshOrtho(meshes["square"], shaders["VertexColor"], modelMatrix);
+    modelMatrix = scale(modelMatrix, glm::vec3(1, glm::min(playerTank->timeLastShot / 3.f, 1.f), 1));
+    RenderMeshOrtho(meshes["filled_square"], shaders["VertexColor"], modelMatrix);
 
     glClear(GL_DEPTH_BUFFER_BIT);
     glViewport(miniViewportArea.x, miniViewportArea.y, miniViewportArea.width, miniViewportArea.height);
-    
-    RenderMesh(meshes["tiger1_hull"], shaders["VertexNormal"], modelMatrix);
-    RenderMesh(meshes["tiger1_turret"], shaders["VertexNormal"], modelMatrix);
-    RenderMesh(meshes["tiger1_gun"], shaders["VertexNormal"], modelMatrix);
-    RenderMesh(meshes["tiger1_tracks"], shaders["VertexNormal"], modelMatrix);
-    DrawCoordinateSystem(camera->GetViewMatrix(), projectionMatrix);
 }
 
 void WorldOfTanks::FrameEnd()
@@ -119,7 +144,8 @@ void WorldOfTanks::RenderTank(tank::Tank& tank)
     glm::mat4 turretModelMatrix = hullModelMatrix;
     hullModelMatrix = rotate(hullModelMatrix, tank.hullRotation, glm::vec3(0, 1, 0));
     turretModelMatrix = rotate(turretModelMatrix, tank.turretRotationActive, glm::vec3(0, 1, 0));
-    
+
+    // RenderMesh(meshes["sphere"], shaders["VertexNormal"], glm::scale(hullModelMatrix, glm::vec3(2.f)));
     RenderMesh(meshes[typeString + "_hull"], shaders["Simple"], hullModelMatrix);
     RenderMesh(meshes[typeString + "_turret"], shaders["Simple"], turretModelMatrix);
     RenderMesh(meshes[typeString + "_gun"], shaders["Simple"], turretModelMatrix);
@@ -134,7 +160,21 @@ void WorldOfTanks::RenderMesh(Mesh* mesh, Shader* shader, const glm::mat4& model
     // Render an object using the specified shader and the specified position
     shader->Use();
     glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(camera->GetViewMatrix()));
-    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(perspectiveProjection));
+    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+    mesh->Render();
+}
+
+void WorldOfTanks::RenderMeshOrtho(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix)
+{
+    if (!mesh || !shader || !shader->program)
+        return;
+
+    // Render an object using the specified shader and the specified position
+    shader->Use();
+    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(orthoCamera->GetViewMatrix()));
+    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(orthoProjection));
     glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
     mesh->Render();
@@ -142,11 +182,15 @@ void WorldOfTanks::RenderMesh(Mesh* mesh, Shader* shader, const glm::mat4& model
 
 void WorldOfTanks::OnInputUpdate(float deltaTime, int mods)
 {
+    if (isinf(deltaTime)) return;
+    
     if (!window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
     {
         playerTank->RotateTurret_OY(deltaTime);
     }
-
+    
+    playerTank->IncrementTime(deltaTime);
+    
     TranslateProjectiles();
 }
 
@@ -154,6 +198,9 @@ void WorldOfTanks::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {
     if (button == GLFW_MOUSE_BUTTON_2)
     {
-        projectiles.emplace_back(playerTank->FireProjectile());
+        if (playerTank->CanFire())
+        {
+            projectiles.emplace_back(playerTank->FireProjectile());
+        }
     }
 }

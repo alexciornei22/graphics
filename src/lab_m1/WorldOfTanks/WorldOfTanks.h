@@ -35,14 +35,17 @@ namespace m1
         
         void RenderTank(tank::Tank& tank);
         void RenderMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix) override;
+        void RenderMeshOrtho(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix);
 
         void OnInputUpdate(float deltaTime, int mods) override;
         void OnMouseBtnPress(int mouseX, int mouseY, int button, int mods) override;
 
         void TranslateProjectiles();
      protected:
-        glm::mat4 projectionMatrix = glm::mat4(1.f);
+        glm::mat4 perspectiveProjection = glm::perspective(glm::radians(60.f), window->props.aspectRatio, 0.01f, 200.0f);
+        glm::mat4 orthoProjection = glm::ortho(0.f, 1280.f, 0.f, 720.f, 0.1f, 200.f);
         ThirdPersonCamera *camera;
+        ThirdPersonCamera *orthoCamera;
         ThirdPersonCameraInput *cameraInput;
         tank::Tank *playerTank;
 

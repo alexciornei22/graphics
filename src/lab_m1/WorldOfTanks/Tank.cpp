@@ -4,7 +4,7 @@
 #include <ostream>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/quaternion_transform.hpp>
-
+#include <glm/gtx/vector_angle.hpp>
 #include "utils/math_utils.h"
 
 using namespace tank;
@@ -64,11 +64,22 @@ void Tank::RotateTurret_OY(float angle)
     gunForward = normalize(glm::vec3(aux));
 }
 
+bool Tank::CanFire()
+{
+    return timeLastShot >= 3.f;
+}
+
 Projectile Tank::FireProjectile()
 {
     glm::vec3 projectilePosition = position + glm::vec3(0, 0.8, 0);
     projectilePosition += glm::normalize(gunForward) * 1.5f;
+    timeLastShot = 0;
     return Projectile(projectilePosition, gunForward);
+}
+
+void Tank::IncrementTime(float deltaTime)
+{
+    timeLastShot += deltaTime;
 }
 
 std::string tank::GetTypeString(Type type)

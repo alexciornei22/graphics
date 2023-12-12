@@ -5,7 +5,7 @@
 
 namespace tank
 {
-    enum class Type
+    enum Type
     {
         TIGER_1
     };
@@ -20,9 +20,12 @@ namespace tank
         void RotateTurretTarget_OY(float angle);
         void RotateTurret_OY(float angle);
 
+        bool CanFire();
         Projectile FireProjectile();
+        void IncrementTime(float deltaTime);
         
         Type type;
+        float timeLastShot = 0;
         glm::vec3 position;
         glm::vec3 forward;
         glm::vec3 right;
