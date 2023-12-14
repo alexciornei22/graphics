@@ -14,7 +14,7 @@ void WorldOfTanks::RenderTank(tank::Tank& tank)
     float const gunAngle = -orientedAngle(tank.gunForward, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
     turretModelMatrix = rotate(turretModelMatrix, gunAngle, glm::vec3(0, 1, 0));
 
-    // RenderMesh(meshes["sphere"], shaders["VertexNormal"], glm::scale(hullModelMatrix, glm::vec3(2.f)));
+    // RenderMesh(meshes["sphere"], shaders["VertexNormal"], glm::scale(hullModelMatrix, glm::vec3(2.5f)));
     RenderMesh(meshes[typeString + "_hull"], shaders["Simple"], hullModelMatrix);
     RenderMesh(meshes[typeString + "_turret"], shaders["Simple"], turretModelMatrix);
     RenderMesh(meshes[typeString + "_gun"], shaders["Simple"], turretModelMatrix);

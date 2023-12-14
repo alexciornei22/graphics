@@ -46,6 +46,7 @@ namespace m1
         void UpdateTankStates();
         void TranslateProjectiles();
         void ExecuteTankActions(float deltaTime);
+        void SetAttackStates();
         
      protected:
         glm::mat4 perspectiveProjection = glm::perspective(glm::radians(60.f), window->props.aspectRatio, 0.01f, 200.0f);

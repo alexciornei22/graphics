@@ -31,6 +31,18 @@ void WorldOfTanks::ExecuteTankActions(float deltaTime)
 {
     for (auto &tank : enemyTanks)
     {
-        tank.ExecuteState(deltaTime);
+        tank.ExecuteState(deltaTime, playerTank->position);
+        tank.RotateTurret_OY(deltaTime);
+    }
+}
+
+void WorldOfTanks::SetAttackStates()
+{
+    for (auto &tank : enemyTanks)
+    {
+        if (distance(playerTank->position, tank.position) < 5.f)
+        {
+            tank.SetAttackState();
+        }
     }
 }

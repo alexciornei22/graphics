@@ -114,16 +114,13 @@ void WorldOfTanks::Update(float deltaTimeSeconds)
     glViewport(0, 0, resolution.x, resolution.y);
 
     RenderTank(*playerTank);
-    glm::mat4 modelMatrix(1);
-    modelMatrix = translate(modelMatrix, camera->GetTargetPosition());
-    modelMatrix = scale(modelMatrix, glm::vec3(0.1f));
-    RenderMesh(meshes["sphere"], shaders["VertexNormal"], modelMatrix);
 
     for (auto &tank : enemyTanks)
     {
         RenderTank(tank);
     }
-    
+
+    glm::mat4 modelMatrix;
     for (auto projectile : projectiles)
     {
         modelMatrix = translate(glm::mat4(1.f), projectile.position);
@@ -142,7 +139,7 @@ void WorldOfTanks::Update(float deltaTimeSeconds)
     RenderMeshOrtho(meshes["shell1"], shaders["VertexNormal"], shellModel);
     modelMatrix = translate(modelMatrix, glm::vec3(-0.5f, -0.5f, 0));
     RenderMeshOrtho(meshes["square"], shaders["VertexColor"], modelMatrix);
-    modelMatrix = scale(modelMatrix, glm::vec3(1, glm::min(playerTank->timeLastShot / 3.f, 1.f), 1));
+    modelMatrix = scale(modelMatrix, glm::vec3(1, glm::min(playerTank->timeLastShot / tank::TANK_FIRE_INTERVAL, 1.f), 1));
     RenderMeshOrtho(meshes["filled_square"], shaders["VertexColor"], modelMatrix);
 
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -169,6 +166,8 @@ void WorldOfTanks::OnInputUpdate(float deltaTime, int mods)
     TranslateProjectiles();
     
     ExecuteTankActions(deltaTime);
+
+    SetAttackStates();
 }
 
 void WorldOfTanks::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
