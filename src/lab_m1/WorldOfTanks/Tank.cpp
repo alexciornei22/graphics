@@ -7,11 +7,10 @@
 #include <glm/gtx/vector_angle.hpp>
 
 #include "Projectile.h"
-#include "utils/math_utils.h"
 
 using namespace tank;
 
-Tank::Tank(Type type, glm::vec3 position, glm::vec3 forward)
+Tank::Tank(Type type, glm::vec3 position, glm::vec3 forward, int health)
 {
     this->type = type;
     this->position = position;
@@ -19,16 +18,21 @@ Tank::Tank(Type type, glm::vec3 position, glm::vec3 forward)
     this->right = cross(forward, glm::vec3(0, 1, 0));
     this->gunForward = normalize(glm::vec3(forward.x, 0, forward.z));
     this->gunForwardTarget = this->gunForward;
+    this->health = health;
 }
 
 void Tank::MoveForward(float distance)
 {
+    if (state == State::Dead) return;
+
     glm::vec3 dir = normalize(glm::vec3(forward.x, 0, forward.z));
     position += dir * distance;
 }
 
 void Tank::RotateHull_OY(float angle)
 {
+    if (state == State::Dead) return;
+
     glm::vec4 aux = rotate(glm::mat4(1.f), -angle, glm::vec3(0, 1, 0)) * glm::vec4(forward, 1);
     forward = normalize(glm::vec3(aux));
     
@@ -38,12 +42,16 @@ void Tank::RotateHull_OY(float angle)
 
 void Tank::RotateTurretTarget_OY(float angle)
 {
+    if (state == State::Dead) return;
+
     glm::vec4 aux = rotate(glm::mat4(1.f), -angle, glm::vec3(0, 1, 0)) * glm::vec4(gunForwardTarget, 1);
     gunForwardTarget = normalize(glm::vec3(aux));
 }
 
 void Tank::RotateTurret_OY(float angle)
 {
+    if (state == State::Dead) return;
+
     if (gunForwardTarget == gunForward)
         return;
 
@@ -82,8 +90,17 @@ Projectile Tank::FireProjectile()
 
 void Tank::IncrementTime(float deltaTime)
 {
+    if (state == State::Dead) return;
+
     timeLastShot += deltaTime;
     timeCurrentState += deltaTime;
+}
+
+void Tank::DecreaseHealth(int damage)
+{
+    health -= damage;
+    if (health <= 0)
+        state = State::Dead;
 }
 
 void Tank::ExecuteState(float deltaTime, glm::vec3 playerPosition)
@@ -97,19 +114,24 @@ void Tank::ExecuteState(float deltaTime, glm::vec3 playerPosition)
     case State::RotateTurretLeft: RotateTurretTarget_OY(deltaTime / 2); break;
     case State::RotateTurretRight: RotateTurretTarget_OY(-deltaTime / 2); break;
     case State::Attack: AimGunAt(playerPosition); break;
+    case State::Dead: break;
     }
 }
 
 void Tank::UpdateState()
 {
-    if (timeCurrentState < TANK_STATE_INTERVAL || state == State::Attack) return;
-
+    if (timeCurrentState < TANK_STATE_INTERVAL) return;
+    if (state == State::Attack) return;
+    if (state == State::Dead) return;
+    
     state = GetRandomState();
     timeCurrentState = 0;
 }
 
 void Tank::SetAttackState()
 {
+    if (state == State::Dead) return;
+
     state = State::Attack;
 }
 
@@ -127,7 +149,7 @@ std::string tank::GetTypeString(Type type)
 
 State tank::GetRandomState()
 {
-    // -1 because attack state is ignored, only set based on distance
-    const int random = rand() % (STATES.size() - 1);
+    // -2 because attack/dead is ignored
+    const int random = rand() % (STATES.size() - 2);
     return STATES[random];
 }

@@ -43,10 +43,13 @@ namespace m1
         void OnMouseBtnPress(int mouseX, int mouseY, int button, int mods) override;
 
         void IncrementTankTimes(float deltaTime);
+        void IncrementProjectileTimes(float deltaTime);
         void UpdateTankStates();
         void TranslateProjectiles();
         void ExecuteTankActions(float deltaTime);
         void SetAttackStates();
+        void DetectProjectileTankCollisions();
+        void DeleteExpiredProjectiles();
         
      protected:
         glm::mat4 perspectiveProjection = glm::perspective(glm::radians(60.f), window->props.aspectRatio, 0.01f, 200.0f);

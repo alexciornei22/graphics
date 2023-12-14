@@ -24,19 +24,22 @@ namespace tank
         RotateRight,
         RotateTurretLeft,
         RotateTurretRight,
-        Attack
+        Attack,
+        Dead
     };
-    constexpr std::array<State, 7> STATES = {
+    constexpr std::array<State, 8> STATES = {
         State::MoveForward,
         State::MoveBackward,
         State::RotateLeft,
         State::RotateRight,
         State::RotateTurretLeft,
         State::RotateTurretRight,
-        State::Attack
+        State::Attack,
+        State::Dead
     };
     constexpr float TANK_FIRE_INTERVAL = 1.5f;
     constexpr float TANK_STATE_INTERVAL = 3.f;
+    constexpr float TANK_COLLISION_SPHERE_RADIUS = 1.25f;
     
     std::string GetTypeString(Type type);
     State GetRandomState();
@@ -44,7 +47,7 @@ namespace tank
     class Tank
     {
     public:
-        Tank(Type type, glm::vec3 position, glm::vec3 forward);
+        Tank(Type type, glm::vec3 position, glm::vec3 forward, int health);
 
         void MoveForward(float distance);
         void RotateHull_OY(float angle);
@@ -55,7 +58,8 @@ namespace tank
         bool CanFire();
         Projectile FireProjectile();
         void IncrementTime(float deltaTime);
-        
+
+        void DecreaseHealth(int damage);
         void ExecuteState(float deltaTime, glm::vec3 playerPosition);
         void UpdateState();
         void SetAttackState();
@@ -72,6 +76,7 @@ namespace tank
         glm::vec3 gunForwardTarget;
 
     private:
+        int health;
         State state = GetRandomState();
     };
 }

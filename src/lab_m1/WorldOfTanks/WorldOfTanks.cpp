@@ -58,14 +58,14 @@ void WorldOfTanks::Init()
     camera = new ThirdPersonCamera(glm::vec3(0, 1, 2), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
     orthoCamera = new ThirdPersonCamera(glm::vec3(0, 0, 50), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
     cameraInput = new ThirdPersonCameraInput(camera);
-    playerTank = new tank::Tank(tank::HELLCAT, glm::vec3(0, 0, 0), camera->forward);
+    playerTank = new tank::Tank(tank::HELLCAT, glm::vec3(0, 0, 0), camera->forward, 10);
     
     auto defaultCameraInput = GetCameraInput();
     defaultCameraInput->SetActive(false);
     window->DisablePointer();
     camera->SetTarget(playerTank);
 
-    enemyTanks.emplace_back(tank::TIGER_1, glm::vec3(-2, 0, -8), glm::vec3(1, 0, 0));
+    enemyTanks.emplace_back(tank::TIGER_1, glm::vec3(-2, 0, -8), glm::vec3(1, 0, 0), 3);
     
     // Sets the resolution of the small viewport
     glm::ivec2 resolution = window->GetResolution();
@@ -160,14 +160,20 @@ void WorldOfTanks::OnInputUpdate(float deltaTime, int mods)
     }
     
     IncrementTankTimes(deltaTime);
+
+    IncrementProjectileTimes(deltaTime);
     
     UpdateTankStates();
     
     TranslateProjectiles();
     
     ExecuteTankActions(deltaTime);
-
+    
     SetAttackStates();
+
+    DetectProjectileTankCollisions();
+
+    DeleteExpiredProjectiles();
 }
 
 void WorldOfTanks::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
