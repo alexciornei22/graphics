@@ -59,6 +59,7 @@ namespace tank
         Projectile FireProjectile();
         void IncrementTime(float deltaTime);
 
+        float GetHealthPercentage();
         void DecreaseHealth(int damage);
         void ExecuteState(float deltaTime, glm::vec3 playerPosition);
         void UpdateState();
@@ -76,6 +77,7 @@ namespace tank
         glm::vec3 gunForwardTarget;
 
     private:
+        const int initialHealth;
         int health;
         State state = GetRandomState();
     };

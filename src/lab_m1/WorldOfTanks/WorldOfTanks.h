@@ -1,10 +1,18 @@
 #pragma once
 
 #include "Projectile.h"
+#include "Projectile.h"
+#include "Projectile.h"
+#include "Projectile.h"
+#include "Projectile.h"
 #include "Tank.h"
 #include "ThirdPersonCamera.h"
 #include "ThirdPersonCameraInput.h"
 #include "components/simple_scene.h"
+#include "lab_m1/PvZ/PvZ.h"
+#include "lab_m1/PvZ/PvZ.h"
+#include "lab_m1/PvZ/PvZ.h"
+#include "lab_m1/PvZ/PvZ.h"
 
 
 namespace m1
@@ -37,6 +45,7 @@ namespace m1
         
         void RenderTank(tank::Tank& tank);
         void RenderMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix) override;
+        void RenderTankMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix, const glm::vec3& color, float healthPercentage);
         void RenderMeshOrtho(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix);
 
         void OnInputUpdate(float deltaTime, int mods) override;
@@ -60,6 +69,11 @@ namespace m1
         tank::Tank *playerTank;
         std::vector<tank::Tank> enemyTanks;
         std::vector<tank::Projectile> projectiles;
+
+        glm::vec3 lightPosition;
+        int materialShininess;
+        float materialKd;
+        float materialKs;
         
         ViewportArea miniViewportArea;
     };

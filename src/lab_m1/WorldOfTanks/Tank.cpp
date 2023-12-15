@@ -10,7 +10,7 @@
 
 using namespace tank;
 
-Tank::Tank(Type type, glm::vec3 position, glm::vec3 forward, int health)
+Tank::Tank(Type type, glm::vec3 position, glm::vec3 forward, int health) : initialHealth(health)
 {
     this->type = type;
     this->position = position;
@@ -96,8 +96,15 @@ void Tank::IncrementTime(float deltaTime)
     timeCurrentState += deltaTime;
 }
 
+float Tank::GetHealthPercentage()
+{
+    return (float) health / (float) initialHealth;
+}
+
 void Tank::DecreaseHealth(int damage)
 {
+    if (state == State::Dead) return;
+    
     health -= damage;
     if (health <= 0)
         state = State::Dead;

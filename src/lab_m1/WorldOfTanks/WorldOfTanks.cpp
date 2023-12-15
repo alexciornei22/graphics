@@ -54,50 +54,38 @@ void WorldOfTanks::Init()
         meshes[mesh->GetMeshID()] = mesh;
     }
     InitTankMeshes();
+
+    {
+        Shader *shader = new Shader("Tank");
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "WorldOfTanks", "shaders", "Tank.VS.glsl"), GL_VERTEX_SHADER);
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "WorldOfTanks", "shaders", "Tank.FS.glsl"), GL_FRAGMENT_SHADER);
+        shader->CreateAndLink();
+        shaders[shader->GetName()] = shader;
+    }
     
     camera = new ThirdPersonCamera(glm::vec3(0, 1, 2), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
     orthoCamera = new ThirdPersonCamera(glm::vec3(0, 0, 50), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
     cameraInput = new ThirdPersonCameraInput(camera);
-    playerTank = new tank::Tank(tank::HELLCAT, glm::vec3(0, 0, 0), camera->forward, 10);
+    playerTank = new tank::Tank(tank::TIGER_1, glm::vec3(0, 0, 0), camera->forward, 10);
     
     auto defaultCameraInput = GetCameraInput();
     defaultCameraInput->SetActive(false);
     window->DisablePointer();
     camera->SetTarget(playerTank);
 
+    // Light & material properties
+    {
+        lightPosition = glm::vec3(0, 100, 0);
+        materialShininess = 30;
+        materialKd = 0.5;
+        materialKs = 0.5;
+    }
+    
     enemyTanks.emplace_back(tank::TIGER_1, glm::vec3(-2, 0, -8), glm::vec3(1, 0, 0), 3);
     
     // Sets the resolution of the small viewport
     glm::ivec2 resolution = window->GetResolution();
     miniViewportArea = ViewportArea(50, 50, resolution.x / 5.f, resolution.y / 5.f);
-}
-
-void WorldOfTanks::InitTankMeshes()
-{
-    for (auto const type : tank::TYPES)
-    {
-        auto name = GetTypeString(type);
-        {
-            Mesh* mesh = new Mesh(name + "_hull");
-            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "hull.obj");
-            meshes[mesh->GetMeshID()] = mesh;
-        }
-        {
-            Mesh* mesh = new Mesh(name + "_turret");
-            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "turret.obj");
-            meshes[mesh->GetMeshID()] = mesh;
-        }
-        {
-            Mesh* mesh = new Mesh(name + "_gun");
-            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "gun.obj");
-            meshes[mesh->GetMeshID()] = mesh;
-        }
-        {
-            Mesh* mesh = new Mesh(name + "_tracks");
-            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "tracks.obj");
-            meshes[mesh->GetMeshID()] = mesh;
-        }
-    }
 }
 
 void WorldOfTanks::FrameStart()
