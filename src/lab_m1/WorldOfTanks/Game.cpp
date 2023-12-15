@@ -105,10 +105,13 @@ void WorldOfTanks::TranslateProjectiles()
 
 void WorldOfTanks::ExecuteTankActions(float deltaTime)
 {
+    playerTank->RotateHull_OY(deltaTime);
+    
     for (auto &tank : enemyTanks)
     {
         tank.ExecuteState(deltaTime, playerTank->position, projectiles);
         tank.RotateTurret_OY(deltaTime);
+        tank.RotateHull_OY(deltaTime);
     }
 }
 
@@ -116,7 +119,7 @@ void WorldOfTanks::SetAttackStates()
 {
     for (auto &tank : enemyTanks)
     {
-        if (distance(playerTank->position, tank.position) < 5.f)
+        if (distance(playerTank->position, tank.position) < tank::TANK_ATTACK_DISTANCE)
         {
             tank.SetAttackState();
         }
@@ -218,7 +221,7 @@ void WorldOfTanks::HandleTankBuildingCollision(tank::Tank& tank, Building& build
     if (DetectTankBuildingCollision(tank.position, building))
     {
         glm::vec3 const direction = normalize(tank.position - buildingPosition);
-        tank.TranslateByDirection(deltaTime, direction);
+        tank.TranslateByDirection(deltaTime * tank::TANK_SPEED, direction);
     }
 }
 

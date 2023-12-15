@@ -85,7 +85,7 @@ void ThirdPersonCamera::Rotate_OY(float angle)
 
 void ThirdPersonCamera::RotateTarget_OY(float angle)
 {
-    target->RotateHull_OY(angle);
+    target->RotateHullTarget_OY(angle);
 }
 
 glm::mat4 ThirdPersonCamera::GetViewMatrix()

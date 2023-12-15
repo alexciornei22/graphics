@@ -16,6 +16,7 @@ Tank::Tank(Type type, glm::vec3 position, glm::vec3 forward, int health) : initi
     this->type = type;
     this->position = position;
     this->forward = normalize(glm::vec3(forward.x, 0, forward.z));
+    this->forwardTarget = this->forward;
     this->right = cross(forward, glm::vec3(0, 1, 0));
     this->gunForward = normalize(glm::vec3(forward.x, 0, forward.z));
     this->gunForwardTarget = this->gunForward;
@@ -27,7 +28,7 @@ void Tank::MoveForward(float distance)
     if (state == State::Dead) return;
 
     glm::vec3 dir = normalize(glm::vec3(forward.x, 0, forward.z));
-    position += dir * distance;
+    position += dir * distance * TANK_SPEED;
 }
 
 void Tank::TranslateByDirection(float distance, glm::vec3 direction)
@@ -39,11 +40,30 @@ void Tank::RotateHull_OY(float angle)
 {
     if (state == State::Dead) return;
 
-    glm::vec4 aux = rotate(glm::mat4(1.f), -angle, glm::vec3(0, 1, 0)) * glm::vec4(forward, 1);
-    forward = normalize(glm::vec3(aux));
-    
-    aux = rotate(glm::mat4(1.f), -angle, glm::vec3(0, 1, 0)) * glm::vec4(right, 1);
-    right = normalize(glm::vec3(aux));
+    if (forwardTarget == forward)
+        return;
+
+    float angleToTarget = orientedAngle(forward, forwardTarget, glm::vec3(0, 1, 0));
+
+    if (abs(angle) > abs(angleToTarget))
+    {
+        forward = forwardTarget;
+    }
+    else
+    {
+        if (angleToTarget < 0) angle *= -1;
+        
+        glm::vec4 aux = rotate(glm::mat4(1.f), angle, glm::vec3(0, 1, 0)) * glm::vec4(forward, 1);
+        forward = normalize(glm::vec3(aux));
+    }
+}
+
+void Tank::RotateHullTarget_OY(float angle)
+{
+    if (state == State::Dead) return;
+
+    glm::vec4 aux = rotate(glm::mat4(1.f), -angle, glm::vec3(0, 1, 0)) * glm::vec4(forwardTarget, 1);
+    forwardTarget = normalize(glm::vec3(aux));
 }
 
 void Tank::RotateTurretTarget_OY(float angle)
@@ -81,11 +101,21 @@ void Tank::AimGunAt(glm::vec3 target)
     gunForwardTarget = normalize(target - position);
 }
 
-void Tank::Attack(glm::vec3 target, std::vector<Projectile>& projectiles)
+void Tank::AimHullAt(glm::vec3 target)
+{
+    forwardTarget = normalize(target - position);
+}
+
+void Tank::Attack(glm::vec3 target, std::vector<Projectile>& projectiles, float deltaTime)
 {
     AimGunAt(target);
-
-    std::cout << CanFire() << " " << angle(gunForward, gunForwardTarget) << std::endl;
+    AimHullAt(target);
+    
+    if (distance(position, target) > 3.f && angle(forward, forwardTarget) < glm::pi<float>() / 36.f)
+    {
+        MoveForward(deltaTime);
+    }
+    
     if (CanFire() && angle(gunForward, gunForwardTarget) < glm::pi<float>() / 36.f)
     {
         projectiles.emplace_back(FireProjectile());
@@ -133,11 +163,11 @@ void Tank::ExecuteState(float deltaTime, glm::vec3 playerPosition, std::vector<P
     {
     case State::MoveForward: MoveForward(deltaTime); break;
     case State::MoveBackward: MoveForward(-deltaTime); break;
-    case State::RotateLeft: RotateHull_OY(deltaTime / 2); break;
-    case State::RotateRight: RotateHull_OY(-deltaTime / 2); break;
+    case State::RotateLeft: RotateHullTarget_OY(deltaTime / 2); break;
+    case State::RotateRight: RotateHullTarget_OY(-deltaTime / 2); break;
     case State::RotateTurretLeft: RotateTurretTarget_OY(deltaTime / 2); break;
     case State::RotateTurretRight: RotateTurretTarget_OY(-deltaTime / 2); break;
-    case State::Attack: Attack(playerPosition, projectiles); break;
+    case State::Attack: Attack(playerPosition, projectiles, deltaTime); break;
     case State::Dead: break;
     }
 }
