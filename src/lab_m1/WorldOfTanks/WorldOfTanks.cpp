@@ -65,6 +65,13 @@ void WorldOfTanks::Init()
         shader->CreateAndLink();
         shaders[shader->GetName()] = shader;
     }
+    {
+        Shader *shader = new Shader("Color");
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "WorldOfTanks", "shaders", "Color.VS.glsl"), GL_VERTEX_SHADER);
+        shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "WorldOfTanks", "shaders", "Color.FS.glsl"), GL_FRAGMENT_SHADER);
+        shader->CreateAndLink();
+        shaders[shader->GetName()] = shader;
+    }
     
     InitTankMeshes();
 
@@ -128,7 +135,7 @@ void WorldOfTanks::Update(float deltaTimeSeconds)
         RenderBuilding(building);
     }
     
-    RenderMesh(meshes["plane50"], shaders["VertexNormal"], glm::mat4(1.f));
+    RenderPlane();
     
     glm::mat4 modelMatrix = translate(glm::mat4(1), glm::vec3(1280 / 2, 100, 0));
     modelMatrix = scale(modelMatrix, glm::vec3(100));
