@@ -75,6 +75,34 @@ void WorldOfTanks::DetectProjectileTankCollisions()
     }
 }
 
+void WorldOfTanks::DetectTankTankCollisions()
+{
+    for (auto &tank : enemyTanks)
+    {
+        DetectTanksCollision(tank, *playerTank);
+
+        for (auto &otherTank : enemyTanks)
+        {
+            DetectTanksCollision(tank, otherTank);
+        }
+    }
+}
+
+void WorldOfTanks::DetectTanksCollision(tank::Tank& tank1, tank::Tank& tank2)
+{
+    if (&tank1 == &tank2) return;
+    
+    float const distance = glm::distance(tank1.position, tank2.position);
+    if (distance < tank::TANK_COLLISION_SPHERE_RADIUS * 2)
+    {
+        glm::vec3 const direction = normalize(tank1.position - tank2.position);
+        float const overlap = tank::TANK_COLLISION_SPHERE_RADIUS * 2 - distance;
+        
+        tank1.TranslateByDirection(overlap / 2, direction);
+        tank2.TranslateByDirection(-overlap / 2, direction);
+    }
+}
+
 void WorldOfTanks::DeleteExpiredProjectiles()
 {
     auto iterator = projectiles.begin();

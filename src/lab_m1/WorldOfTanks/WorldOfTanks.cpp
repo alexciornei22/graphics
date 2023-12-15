@@ -161,6 +161,8 @@ void WorldOfTanks::OnInputUpdate(float deltaTime, int mods)
 
     DetectProjectileTankCollisions();
 
+    DetectTankTankCollisions();
+    
     DeleteExpiredProjectiles();
 }
 

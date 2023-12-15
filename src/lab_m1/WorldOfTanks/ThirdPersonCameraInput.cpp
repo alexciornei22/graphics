@@ -4,13 +4,15 @@
 void ThirdPersonCameraInput::OnInputUpdate(float deltaTime, int mods)
 {
     if (window->KeyHold(GLFW_KEY_W))
-        camera->MoveForward(deltaTime);
+        camera->MoveTargetForward(deltaTime);
     if (window->KeyHold(GLFW_KEY_A))
         camera->RotateTarget_OY(-deltaTime);
     if (window->KeyHold(GLFW_KEY_S))
-        camera->MoveForward(-deltaTime);
+        camera->MoveTargetForward(-deltaTime);
     if (window->KeyHold(GLFW_KEY_D))
         camera->RotateTarget_OY(deltaTime);
+
+    camera->SetCameraToTarget();
 }
 
 void ThirdPersonCameraInput::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)

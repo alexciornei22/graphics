@@ -29,6 +29,11 @@ void Tank::MoveForward(float distance)
     position += dir * distance;
 }
 
+void Tank::TranslateByDirection(float distance, glm::vec3 direction)
+{
+    position += direction * distance;
+}
+
 void Tank::RotateHull_OY(float angle)
 {
     if (state == State::Dead) return;
@@ -82,7 +87,7 @@ bool Tank::CanFire()
 
 Projectile Tank::FireProjectile()
 {
-    glm::vec3 projectilePosition = position + glm::vec3(0, 0.8, 0);
+    glm::vec3 projectilePosition = position + glm::vec3(0, 0.5, 0);
     projectilePosition += normalize(gunForward) * 1.5f;
     timeLastShot = 0;
     return {projectilePosition, gunForward};

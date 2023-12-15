@@ -49,7 +49,7 @@ void WorldOfTanks::RenderTank(tank::Tank& tank)
     glm::vec3 tracksColor {0.7f, 0.9f, 0.7f};
 
     float healthPercentage = tank.GetHealthPercentage();
-    // RenderMesh(meshes["sphere"], shaders["VertexNormal"], glm::scale(hullModelMatrix, glm::vec3(2.5f)));
+    // RenderMesh(meshes["sphere"], shaders["VertexNormal"], glm::scale(hullModelMatrix, glm::vec3(tank::TANK_COLLISION_SPHERE_RADIUS * 2)));
     RenderTankMesh(meshes[typeString + "_hull"], shaders["Tank"], hullModelMatrix, hullColor, healthPercentage);
     RenderTankMesh(meshes[typeString + "_turret"], shaders["Tank"], turretModelMatrix, turretColor, healthPercentage);
     RenderTankMesh(meshes[typeString + "_gun"], shaders["Tank"], turretModelMatrix, gunColor, healthPercentage);

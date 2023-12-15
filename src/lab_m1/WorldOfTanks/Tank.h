@@ -39,7 +39,7 @@ namespace tank
     };
     constexpr float TANK_FIRE_INTERVAL = 1.5f;
     constexpr float TANK_STATE_INTERVAL = 3.f;
-    constexpr float TANK_COLLISION_SPHERE_RADIUS = 1.25f;
+    constexpr float TANK_COLLISION_SPHERE_RADIUS = 1.f;
     
     std::string GetTypeString(Type type);
     State GetRandomState();
@@ -50,6 +50,7 @@ namespace tank
         Tank(Type type, glm::vec3 position, glm::vec3 forward, int health);
 
         void MoveForward(float distance);
+        void TranslateByDirection(float distance, glm::vec3 direction);
         void RotateHull_OY(float angle);
         void RotateTurretTarget_OY(float angle);
         void RotateTurret_OY(float angle);

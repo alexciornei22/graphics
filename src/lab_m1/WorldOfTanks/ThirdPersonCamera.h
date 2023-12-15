@@ -10,7 +10,7 @@ public:
     ThirdPersonCamera(const glm::vec3& position, const glm::vec3& center, const glm::vec3& up);
     ~ThirdPersonCamera();
 
-    void MoveForward(float distance);
+    void MoveTargetForward(float distance);
     void TranslateForward(float distance);
     void TranslateUpward(float distance);
     void TranslateRight(float distance);
@@ -26,6 +26,7 @@ public:
     glm::vec3 GetTargetPosition();
 
     void SetTarget(tank::Tank* target);
+    void SetCameraToTarget();
     
     float distanceToTarget = 2;
     tank::Tank *target;

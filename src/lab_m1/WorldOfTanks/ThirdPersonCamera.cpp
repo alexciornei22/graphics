@@ -8,16 +8,9 @@ ThirdPersonCamera::ThirdPersonCamera(const glm::vec3& position, const glm::vec3&
     this->up = cross(right, forward);
 }
 
-void ThirdPersonCamera::MoveForward(float distance)
+void ThirdPersonCamera::MoveTargetForward(float distance)
 {
-    // Translates the camera using the `dir` vector computed from
-    // `forward`. Movement will always keep the camera at the same
-    // height. For example, if you rotate your head up/down, and then
-    // walk forward, then you will still keep the same relative
-    // distance (height) to the ground!
     target->MoveForward(distance);
-    glm::vec3 dir = normalize(glm::vec3(target->forward.x, 0, target->forward.z));
-    position += dir * distance;
 }
 
 
@@ -109,4 +102,10 @@ glm::vec3 ThirdPersonCamera::GetTargetPosition()
 void ThirdPersonCamera::SetTarget(tank::Tank* target)
 {
     this->target = target;
+}
+
+void ThirdPersonCamera::SetCameraToTarget()
+{
+    position = target->position + glm::vec3(0, 1, 0);
+    position -= forward * distanceToTarget;
 }

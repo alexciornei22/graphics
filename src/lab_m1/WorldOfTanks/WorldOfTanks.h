@@ -1,19 +1,10 @@
 #pragma once
 
 #include "Projectile.h"
-#include "Projectile.h"
-#include "Projectile.h"
-#include "Projectile.h"
-#include "Projectile.h"
 #include "Tank.h"
 #include "ThirdPersonCamera.h"
 #include "ThirdPersonCameraInput.h"
 #include "components/simple_scene.h"
-#include "lab_m1/PvZ/PvZ.h"
-#include "lab_m1/PvZ/PvZ.h"
-#include "lab_m1/PvZ/PvZ.h"
-#include "lab_m1/PvZ/PvZ.h"
-
 
 namespace m1
 {
@@ -58,6 +49,8 @@ namespace m1
         void ExecuteTankActions(float deltaTime);
         void SetAttackStates();
         void DetectProjectileTankCollisions();
+        void DetectTankTankCollisions();
+        void DetectTanksCollision(tank::Tank &tank1, tank::Tank &tank2);
         void DeleteExpiredProjectiles();
         
      protected:
