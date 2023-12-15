@@ -201,8 +201,10 @@ std::string tank::GetTypeString(Type type)
         return "tiger1";
     case HELLCAT:
         return "hellcat";
-    default:
-            return "";
+    case IS_1:
+        return "is1";
+    case TIGER_2:
+        return "tiger2";
     }
 }
 

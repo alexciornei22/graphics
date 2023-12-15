@@ -14,11 +14,15 @@ namespace tank
     enum Type
     {
         TIGER_1,
-        HELLCAT
+        HELLCAT,
+        IS_1,
+        TIGER_2
     };
-    constexpr std::array<Type, 2> TYPES = {
+    constexpr std::array<Type, 4> TYPES = {
         TIGER_1,
         HELLCAT,
+        IS_1,
+        TIGER_2
     };
     enum class State
     {

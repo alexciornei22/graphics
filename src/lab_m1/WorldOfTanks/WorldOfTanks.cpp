@@ -78,7 +78,7 @@ void WorldOfTanks::Init()
 
     glm::vec3 position = GetRandomPosition();
     while (DetectTankBuildingsCollision(position)) position = GetRandomPosition();
-    playerTank = new tank::Tank(tank::TIGER_1, position, camera->forward, 10);
+    playerTank = new tank::Tank(tank::TIGER_2, position, camera->forward, 10);
     
     auto defaultCameraInput = GetCameraInput();
     defaultCameraInput->SetActive(false);
