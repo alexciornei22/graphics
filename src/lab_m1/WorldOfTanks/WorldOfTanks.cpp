@@ -177,6 +177,8 @@ void WorldOfTanks::OnInputUpdate(float deltaTime, int mods)
     HandleProjectilesBuildingsCollisions();
     
     DeleteExpiredProjectiles();
+
+    CheckGameEnded();
 }
 
 void WorldOfTanks::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)

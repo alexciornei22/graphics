@@ -107,7 +107,7 @@ void WorldOfTanks::ExecuteTankActions(float deltaTime)
 {
     for (auto &tank : enemyTanks)
     {
-        tank.ExecuteState(deltaTime, playerTank->position);
+        tank.ExecuteState(deltaTime, playerTank->position, projectiles);
         tank.RotateTurret_OY(deltaTime);
     }
 }
@@ -138,6 +138,12 @@ void WorldOfTanks::HandleProjectileTankCollisions()
             }
         }
 
+        if (distance(projectile.position, playerTank->position) < tank::TANK_COLLISION_SPHERE_RADIUS)
+        {
+            playerTank->DecreaseHealth(projectile.damage);
+            iterator = projectiles.erase(iterator);
+        }
+        
         if (iterator != projectiles.end())
             ++iterator;
     }
@@ -255,6 +261,14 @@ void WorldOfTanks::DeleteExpiredProjectiles()
             continue;
         }
         ++iterator;
+    }
+}
+
+void WorldOfTanks::CheckGameEnded()
+{
+    if (playerTank->IsDead())
+    {
+        window->Close();
     }
 }
 

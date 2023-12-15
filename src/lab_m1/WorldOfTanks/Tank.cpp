@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <ostream>
+#include <vector>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/quaternion_transform.hpp>
 #include <glm/gtx/vector_angle.hpp>
@@ -80,6 +81,17 @@ void Tank::AimGunAt(glm::vec3 target)
     gunForwardTarget = normalize(target - position);
 }
 
+void Tank::Attack(glm::vec3 target, std::vector<Projectile>& projectiles)
+{
+    AimGunAt(target);
+
+    std::cout << CanFire() << " " << angle(gunForward, gunForwardTarget) << std::endl;
+    if (CanFire() && angle(gunForward, gunForwardTarget) < glm::pi<float>() / 36.f)
+    {
+        projectiles.emplace_back(FireProjectile());
+    }
+}
+
 bool Tank::CanFire()
 {
     return timeLastShot >= TANK_FIRE_INTERVAL;
@@ -115,7 +127,7 @@ void Tank::DecreaseHealth(int damage)
         state = State::Dead;
 }
 
-void Tank::ExecuteState(float deltaTime, glm::vec3 playerPosition)
+void Tank::ExecuteState(float deltaTime, glm::vec3 playerPosition, std::vector<Projectile>& projectiles)
 {
     switch (state)
     {
@@ -125,7 +137,7 @@ void Tank::ExecuteState(float deltaTime, glm::vec3 playerPosition)
     case State::RotateRight: RotateHull_OY(-deltaTime / 2); break;
     case State::RotateTurretLeft: RotateTurretTarget_OY(deltaTime / 2); break;
     case State::RotateTurretRight: RotateTurretTarget_OY(-deltaTime / 2); break;
-    case State::Attack: AimGunAt(playerPosition); break;
+    case State::Attack: Attack(playerPosition, projectiles); break;
     case State::Dead: break;
     }
 }
@@ -145,6 +157,11 @@ void Tank::SetAttackState()
     if (state == State::Dead) return;
 
     state = State::Attack;
+}
+
+bool Tank::IsDead()
+{
+    return health <= 0;
 }
 
 std::string tank::GetTypeString(Type type)

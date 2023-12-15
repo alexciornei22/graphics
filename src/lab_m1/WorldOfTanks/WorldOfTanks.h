@@ -64,7 +64,8 @@ namespace m1
         void HandleTankBuildingCollision(tank::Tank &tank, Building &building, float deltaTime);
         void HandleProjectilesBuildingsCollisions();
         void DeleteExpiredProjectiles();
-
+        void CheckGameEnded();
+        
         glm::vec3 GetRandomPosition();
         
      protected:

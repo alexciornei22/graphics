@@ -2,7 +2,9 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <array>
+#include <vector>
 
+#include "Building.h"
 #include "Projectile.h"
 
 namespace tank
@@ -55,6 +57,7 @@ namespace tank
         void RotateTurretTarget_OY(float angle);
         void RotateTurret_OY(float angle);
         void AimGunAt(glm::vec3 target);
+        void Attack(glm::vec3 target, std::vector<Projectile>& projectiles);
         
         bool CanFire();
         Projectile FireProjectile();
@@ -62,9 +65,10 @@ namespace tank
 
         float GetHealthPercentage();
         void DecreaseHealth(int damage);
-        void ExecuteState(float deltaTime, glm::vec3 playerPosition);
+        void ExecuteState(float deltaTime, glm::vec3 playerPosition, std::vector<Projectile>& projectiles);
         void UpdateState();
         void SetAttackState();
+        bool IsDead();
         
         Type type;
         glm::vec3 position;
