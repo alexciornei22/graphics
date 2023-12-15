@@ -2,6 +2,54 @@
 
 using namespace m1;
 
+void WorldOfTanks::InitTankMeshes()
+{
+    for (auto const type : tank::TYPES)
+    {
+        auto name = GetTypeString(type);
+        {
+            Mesh* mesh = new Mesh(name + "_hull");
+            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "hull.obj");
+            meshes[mesh->GetMeshID()] = mesh;
+        }
+        {
+            Mesh* mesh = new Mesh(name + "_turret");
+            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "turret.obj");
+            meshes[mesh->GetMeshID()] = mesh;
+        }
+        {
+            Mesh* mesh = new Mesh(name + "_gun");
+            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "gun.obj");
+            meshes[mesh->GetMeshID()] = mesh;
+        }
+        {
+            Mesh* mesh = new Mesh(name + "_tracks");
+            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "tracks.obj");
+            meshes[mesh->GetMeshID()] = mesh;
+        }
+    }
+}
+
+void WorldOfTanks::InitBuildings()
+{
+    int const nrBuildings = rand() % 5 + 5;
+
+    for (int i = 0; i < nrBuildings; i++)
+    {
+        int positionX = rand() % 25;
+        positionX *= (rand() % 2) ? -1 : 1;
+        int positionZ = rand() % 25;
+        positionZ *= (rand() % 2) ? -1 : 1;
+        glm::vec3 position = glm::vec3(positionX, 0, positionZ);
+
+        int length = rand() % 3 + 3;
+        int width = rand() % 3 + 3;
+        int height = rand() % 2 + 2;
+
+        buildings.emplace_back(position, length, width, height);
+    }
+}
+
 void WorldOfTanks::IncrementTankTimes(float deltaTime)
 {
     playerTank->IncrementTime(deltaTime);
@@ -100,6 +148,62 @@ void WorldOfTanks::DetectTanksCollision(tank::Tank& tank1, tank::Tank& tank2)
         
         tank1.TranslateByDirection(overlap / 2, direction);
         tank2.TranslateByDirection(-overlap / 2, direction);
+    }
+}
+
+void WorldOfTanks::DetectTanksBuildingsCollisions(float deltaTime)
+{
+    for (auto &building : buildings)
+    {
+        DetectTankBuildingCollision(*playerTank, building, deltaTime);
+
+        for (auto &tank : enemyTanks)
+        {
+            DetectTankBuildingCollision(tank, building, deltaTime);
+        }
+    }
+}
+
+void WorldOfTanks::DetectTankBuildingCollision(tank::Tank& tank, Building& building, float deltaTime)
+{
+    glm::vec3 const buildingPosition = building.GetPosition();
+    float const length = building.GetLength();
+    float const width = building.GetWidth();
+    
+    if (
+        abs(tank.position.x - buildingPosition.x) < tank::TANK_COLLISION_SPHERE_RADIUS + length / 2.f
+        && abs(tank.position.z - buildingPosition.z) < tank::TANK_COLLISION_SPHERE_RADIUS + width / 2.f
+        )
+    {
+        glm::vec3 const direction = normalize(tank.position - buildingPosition);
+        tank.TranslateByDirection(deltaTime, direction);
+    }
+}
+
+void WorldOfTanks::DetectProjectilesBuildingsCollisions()
+{
+    auto iterator = projectiles.begin();
+    while (iterator != projectiles.end())
+    {
+        auto projectile = *iterator;
+        for (auto &building : buildings)
+        {
+            glm::vec3 const buildingPosition = building.GetPosition();
+            float const length = building.GetLength();
+            float const width = building.GetWidth();
+            
+            if (
+                abs(projectile.position.x - buildingPosition.x) < length / 2.f
+                && abs(projectile.position.z - buildingPosition.z) < width / 2.f
+                )
+            {
+                iterator = projectiles.erase(iterator);
+                break;
+            }
+        }
+
+        if (iterator != projectiles.end())
+            ++iterator;
     }
 }
 

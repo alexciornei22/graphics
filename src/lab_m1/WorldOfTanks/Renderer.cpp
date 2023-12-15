@@ -4,34 +4,6 @@
 
 using namespace m1;
 
-void WorldOfTanks::InitTankMeshes()
-{
-    for (auto const type : tank::TYPES)
-    {
-        auto name = GetTypeString(type);
-        {
-            Mesh* mesh = new Mesh(name + "_hull");
-            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "hull.obj");
-            meshes[mesh->GetMeshID()] = mesh;
-        }
-        {
-            Mesh* mesh = new Mesh(name + "_turret");
-            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "turret.obj");
-            meshes[mesh->GetMeshID()] = mesh;
-        }
-        {
-            Mesh* mesh = new Mesh(name + "_gun");
-            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "gun.obj");
-            meshes[mesh->GetMeshID()] = mesh;
-        }
-        {
-            Mesh* mesh = new Mesh(name + "_tracks");
-            mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "tanks/" + name), "tracks.obj");
-            meshes[mesh->GetMeshID()] = mesh;
-        }
-    }
-}
-
 void WorldOfTanks::RenderTank(tank::Tank& tank)
 {
     const std::string typeString = GetTypeString(tank.type);
@@ -54,6 +26,16 @@ void WorldOfTanks::RenderTank(tank::Tank& tank)
     RenderTankMesh(meshes[typeString + "_turret"], shaders["Tank"], turretModelMatrix, turretColor, healthPercentage);
     RenderTankMesh(meshes[typeString + "_gun"], shaders["Tank"], turretModelMatrix, gunColor, healthPercentage);
     RenderTankMesh(meshes[typeString + "_tracks"], shaders["Tank"], hullModelMatrix, tracksColor, healthPercentage);
+}
+
+void WorldOfTanks::RenderBuilding(Building& building)
+{
+    glm::mat4 modelMatrix {1.f};
+    modelMatrix = glm::translate(modelMatrix, building.GetPosition());
+    glm::vec3 scaleVector = glm::vec3(building.GetLength(), building.GetHeight() * 2, building.GetWidth());
+    modelMatrix = glm::scale(modelMatrix, scaleVector);
+
+    RenderTankMesh(meshes["box"], shaders["Tank"], modelMatrix, glm::vec3(0.8f), 1.f);
 }
 
 void WorldOfTanks::RenderMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix)

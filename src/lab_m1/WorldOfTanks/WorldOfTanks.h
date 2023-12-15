@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Building.h"
 #include "Projectile.h"
 #include "Tank.h"
 #include "ThirdPersonCamera.h"
@@ -29,12 +30,14 @@ namespace m1
 
      private:
         void InitTankMeshes();
+        void InitBuildings();
         
         void FrameStart() override;
         void Update(float deltaTimeSeconds) override;
         void FrameEnd() override;
         
         void RenderTank(tank::Tank& tank);
+        void RenderBuilding(Building &building);
         void RenderMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix) override;
         void RenderTankMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix, const glm::vec3& color, float healthPercentage);
         void RenderMeshOrtho(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix);
@@ -51,6 +54,9 @@ namespace m1
         void DetectProjectileTankCollisions();
         void DetectTankTankCollisions();
         void DetectTanksCollision(tank::Tank &tank1, tank::Tank &tank2);
+        void DetectTanksBuildingsCollisions(float deltaTime);
+        void DetectTankBuildingCollision(tank::Tank &tank, Building &building, float deltaTime);
+        void DetectProjectilesBuildingsCollisions();
         void DeleteExpiredProjectiles();
         
      protected:
@@ -62,7 +68,8 @@ namespace m1
         tank::Tank *playerTank;
         std::vector<tank::Tank> enemyTanks;
         std::vector<tank::Projectile> projectiles;
-
+        std::vector<Building> buildings;
+        
         glm::vec3 lightPosition;
         int materialShininess;
         float materialKd;

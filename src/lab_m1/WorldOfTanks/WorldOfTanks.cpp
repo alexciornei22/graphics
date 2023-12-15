@@ -35,6 +35,11 @@ void WorldOfTanks::Init()
         meshes[mesh->GetMeshID()] = mesh;
     }
     {
+        Mesh* mesh = new Mesh("box");
+        mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
+        meshes[mesh->GetMeshID()] = mesh;
+    }
+    {
         Mesh* mesh = shapes::CreateSquare("filled_square", glm::vec3(0), 1, glm::vec3(0), true);
         meshes[mesh->GetMeshID()] = mesh;
     }
@@ -53,8 +58,11 @@ void WorldOfTanks::Init()
         mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "sphere.obj");
         meshes[mesh->GetMeshID()] = mesh;
     }
+    
     InitTankMeshes();
 
+    InitBuildings();
+    
     {
         Shader *shader = new Shader("Tank");
         shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "WorldOfTanks", "shaders", "Tank.VS.glsl"), GL_VERTEX_SHADER);
@@ -107,7 +115,7 @@ void WorldOfTanks::Update(float deltaTimeSeconds)
     {
         RenderTank(tank);
     }
-
+    
     glm::mat4 modelMatrix;
     for (auto projectile : projectiles)
     {
@@ -116,6 +124,11 @@ void WorldOfTanks::Update(float deltaTimeSeconds)
         modelMatrix = rotate(modelMatrix, glm::pi<float>() / 2, glm::vec3(1, 0, 0));
         modelMatrix = rotate(modelMatrix, orientedAngle(projectile.forward, glm::vec3(0, 0, 1), glm::vec3(0, 1, 0)), glm::vec3(0, 0, 1));
         RenderMesh(meshes["shell1"], shaders["VertexColor"], modelMatrix);
+    }
+
+    for (auto &building : buildings)
+    {
+        RenderBuilding(building);
     }
     
     RenderMesh(meshes["plane50"], shaders["VertexNormal"], glm::mat4(1.f));
@@ -162,6 +175,10 @@ void WorldOfTanks::OnInputUpdate(float deltaTime, int mods)
     DetectProjectileTankCollisions();
 
     DetectTankTankCollisions();
+
+    DetectTanksBuildingsCollisions(deltaTime);
+
+    DetectProjectilesBuildingsCollisions();
     
     DeleteExpiredProjectiles();
 }
