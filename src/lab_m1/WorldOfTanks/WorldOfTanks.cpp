@@ -58,11 +58,6 @@ void WorldOfTanks::Init()
         mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "sphere.obj");
         meshes[mesh->GetMeshID()] = mesh;
     }
-    
-    InitTankMeshes();
-
-    InitBuildings();
-    
     {
         Shader *shader = new Shader("Tank");
         shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "WorldOfTanks", "shaders", "Tank.VS.glsl"), GL_VERTEX_SHADER);
@@ -71,10 +66,19 @@ void WorldOfTanks::Init()
         shaders[shader->GetName()] = shader;
     }
     
+    InitTankMeshes();
+
+    InitBuildings();
+
+    InitEnemyTanks();
+    
     camera = new ThirdPersonCamera(glm::vec3(0, 1, 2), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
     orthoCamera = new ThirdPersonCamera(glm::vec3(0, 0, 50), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
     cameraInput = new ThirdPersonCameraInput(camera);
-    playerTank = new tank::Tank(tank::TIGER_1, glm::vec3(0, 0, 0), camera->forward, 10);
+
+    glm::vec3 position = GetRandomPosition();
+    while (DetectTankBuildingsCollision(position)) position = GetRandomPosition();
+    playerTank = new tank::Tank(tank::TIGER_1, position, camera->forward, 10);
     
     auto defaultCameraInput = GetCameraInput();
     defaultCameraInput->SetActive(false);
@@ -88,8 +92,6 @@ void WorldOfTanks::Init()
         materialKd = 0.5;
         materialKs = 0.5;
     }
-    
-    enemyTanks.emplace_back(tank::TIGER_1, glm::vec3(-2, 0, -8), glm::vec3(1, 0, 0), 3);
     
     // Sets the resolution of the small viewport
     glm::ivec2 resolution = window->GetResolution();
@@ -116,14 +118,9 @@ void WorldOfTanks::Update(float deltaTimeSeconds)
         RenderTank(tank);
     }
     
-    glm::mat4 modelMatrix;
     for (auto projectile : projectiles)
     {
-        modelMatrix = translate(glm::mat4(1.f), projectile.position);
-        modelMatrix = scale(modelMatrix, glm::vec3(0.1f));
-        modelMatrix = rotate(modelMatrix, glm::pi<float>() / 2, glm::vec3(1, 0, 0));
-        modelMatrix = rotate(modelMatrix, orientedAngle(projectile.forward, glm::vec3(0, 0, 1), glm::vec3(0, 1, 0)), glm::vec3(0, 0, 1));
-        RenderMesh(meshes["shell1"], shaders["VertexColor"], modelMatrix);
+        RenderProjectile(projectile);
     }
 
     for (auto &building : buildings)
@@ -132,9 +129,8 @@ void WorldOfTanks::Update(float deltaTimeSeconds)
     }
     
     RenderMesh(meshes["plane50"], shaders["VertexNormal"], glm::mat4(1.f));
-    DrawCoordinateSystem(camera->GetViewMatrix(), perspectiveProjection);
     
-    modelMatrix = translate(glm::mat4(1), glm::vec3(1280 / 2, 100, 0));
+    glm::mat4 modelMatrix = translate(glm::mat4(1), glm::vec3(1280 / 2, 100, 0));
     modelMatrix = scale(modelMatrix, glm::vec3(100));
     glm::mat4 shellModel = scale(modelMatrix, glm::vec3(0.3f));
     RenderMeshOrtho(meshes["shell1"], shaders["VertexNormal"], shellModel);
@@ -172,13 +168,13 @@ void WorldOfTanks::OnInputUpdate(float deltaTime, int mods)
     
     SetAttackStates();
 
-    DetectProjectileTankCollisions();
+    HandleProjectileTankCollisions();
 
-    DetectTankTankCollisions();
+    HandleTankTankCollisions();
 
-    DetectTanksBuildingsCollisions(deltaTime);
+    HandleTanksBuildingsCollisions(deltaTime);
 
-    DetectProjectilesBuildingsCollisions();
+    HandleProjectilesBuildingsCollisions();
     
     DeleteExpiredProjectiles();
 }

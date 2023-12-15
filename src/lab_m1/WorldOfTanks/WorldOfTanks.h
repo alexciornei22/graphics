@@ -9,6 +9,8 @@
 
 namespace m1
 {
+    constexpr int WORLD_LENGTH = 50;
+
     class WorldOfTanks : public gfxc::SimpleScene
     {
      public:
@@ -31,12 +33,14 @@ namespace m1
      private:
         void InitTankMeshes();
         void InitBuildings();
+        void InitEnemyTanks();
         
         void FrameStart() override;
         void Update(float deltaTimeSeconds) override;
         void FrameEnd() override;
         
         void RenderTank(tank::Tank& tank);
+        void RenderProjectile(tank::Projectile& projectile);
         void RenderBuilding(Building &building);
         void RenderMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix) override;
         void RenderTankMesh(Mesh *mesh, Shader *shader, const glm::mat4 &modelMatrix, const glm::vec3& color, float healthPercentage);
@@ -51,13 +55,17 @@ namespace m1
         void TranslateProjectiles();
         void ExecuteTankActions(float deltaTime);
         void SetAttackStates();
-        void DetectProjectileTankCollisions();
-        void DetectTankTankCollisions();
-        void DetectTanksCollision(tank::Tank &tank1, tank::Tank &tank2);
-        void DetectTanksBuildingsCollisions(float deltaTime);
-        void DetectTankBuildingCollision(tank::Tank &tank, Building &building, float deltaTime);
-        void DetectProjectilesBuildingsCollisions();
+        void HandleProjectileTankCollisions();
+        void HandleTankTankCollisions();
+        void HandleTanksCollision(tank::Tank &tank1, tank::Tank &tank2);
+        void HandleTanksBuildingsCollisions(float deltaTime);
+        bool DetectTankBuildingCollision(glm::vec3 position, Building &building);
+        bool DetectTankBuildingsCollision(glm::vec3 position);
+        void HandleTankBuildingCollision(tank::Tank &tank, Building &building, float deltaTime);
+        void HandleProjectilesBuildingsCollisions();
         void DeleteExpiredProjectiles();
+
+        glm::vec3 GetRandomPosition();
         
      protected:
         glm::mat4 perspectiveProjection = glm::perspective(glm::radians(60.f), window->props.aspectRatio, 0.01f, 200.0f);

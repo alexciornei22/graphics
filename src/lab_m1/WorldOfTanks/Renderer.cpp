@@ -28,6 +28,15 @@ void WorldOfTanks::RenderTank(tank::Tank& tank)
     RenderTankMesh(meshes[typeString + "_tracks"], shaders["Tank"], hullModelMatrix, tracksColor, healthPercentage);
 }
 
+void WorldOfTanks::RenderProjectile(tank::Projectile& projectile)
+{
+    glm::mat4 modelMatrix = translate(glm::mat4(1.f), projectile.position);
+    modelMatrix = scale(modelMatrix, glm::vec3(0.1f));
+    modelMatrix = rotate(modelMatrix, glm::pi<float>() / 2, glm::vec3(1, 0, 0));
+    modelMatrix = rotate(modelMatrix, orientedAngle(projectile.forward, glm::vec3(0, 0, 1), glm::vec3(0, 1, 0)), glm::vec3(0, 0, 1));
+    RenderMesh(meshes["shell1"], shaders["VertexColor"], modelMatrix);
+}
+
 void WorldOfTanks::RenderBuilding(Building& building)
 {
     glm::mat4 modelMatrix {1.f};

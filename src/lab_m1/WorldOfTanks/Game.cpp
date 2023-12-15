@@ -1,4 +1,5 @@
-﻿#include "WorldOfTanks.h"
+﻿#include "Building.h"
+#include "WorldOfTanks.h"
 
 using namespace m1;
 
@@ -47,6 +48,25 @@ void WorldOfTanks::InitBuildings()
         int height = rand() % 2 + 2;
 
         buildings.emplace_back(position, length, width, height);
+    }
+}
+
+void WorldOfTanks::InitEnemyTanks()
+{
+    int const nrTanks = 10;
+
+    for (int i = 0; i < nrTanks; i++)
+    {
+        int type = rand() % tank::TYPES.size();
+        glm::vec3 forward = glm::normalize(GetRandomPosition());
+        glm::vec3 position = GetRandomPosition();
+
+        while (DetectTankBuildingsCollision(position))
+        {
+            position = GetRandomPosition();
+        }
+        
+        enemyTanks.emplace_back(tank::TYPES[type], position, forward, 3);
     }
 }
 
@@ -103,7 +123,7 @@ void WorldOfTanks::SetAttackStates()
     }
 }
 
-void WorldOfTanks::DetectProjectileTankCollisions()
+void WorldOfTanks::HandleProjectileTankCollisions()
 {
     auto iterator = projectiles.begin();
     while (iterator != projectiles.end())
@@ -123,20 +143,20 @@ void WorldOfTanks::DetectProjectileTankCollisions()
     }
 }
 
-void WorldOfTanks::DetectTankTankCollisions()
+void WorldOfTanks::HandleTankTankCollisions()
 {
     for (auto &tank : enemyTanks)
     {
-        DetectTanksCollision(tank, *playerTank);
+        HandleTanksCollision(tank, *playerTank);
 
         for (auto &otherTank : enemyTanks)
         {
-            DetectTanksCollision(tank, otherTank);
+            HandleTanksCollision(tank, otherTank);
         }
     }
 }
 
-void WorldOfTanks::DetectTanksCollision(tank::Tank& tank1, tank::Tank& tank2)
+void WorldOfTanks::HandleTanksCollision(tank::Tank& tank1, tank::Tank& tank2)
 {
     if (&tank1 == &tank2) return;
     
@@ -151,36 +171,52 @@ void WorldOfTanks::DetectTanksCollision(tank::Tank& tank1, tank::Tank& tank2)
     }
 }
 
-void WorldOfTanks::DetectTanksBuildingsCollisions(float deltaTime)
+void WorldOfTanks::HandleTanksBuildingsCollisions(float deltaTime)
 {
     for (auto &building : buildings)
     {
-        DetectTankBuildingCollision(*playerTank, building, deltaTime);
+        HandleTankBuildingCollision(*playerTank, building, deltaTime);
 
         for (auto &tank : enemyTanks)
         {
-            DetectTankBuildingCollision(tank, building, deltaTime);
+            HandleTankBuildingCollision(tank, building, deltaTime);
         }
     }
 }
 
-void WorldOfTanks::DetectTankBuildingCollision(tank::Tank& tank, Building& building, float deltaTime)
+bool WorldOfTanks::DetectTankBuildingCollision(glm::vec3 position, Building& building)
 {
     glm::vec3 const buildingPosition = building.GetPosition();
     float const length = building.GetLength();
     float const width = building.GetWidth();
     
-    if (
-        abs(tank.position.x - buildingPosition.x) < tank::TANK_COLLISION_SPHERE_RADIUS + length / 2.f
-        && abs(tank.position.z - buildingPosition.z) < tank::TANK_COLLISION_SPHERE_RADIUS + width / 2.f
-        )
+    return
+    abs(position.x - buildingPosition.x) < tank::TANK_COLLISION_SPHERE_RADIUS + length / 2.f
+    && abs(position.z - buildingPosition.z) < tank::TANK_COLLISION_SPHERE_RADIUS + width / 2.f
+    ;
+}
+
+bool WorldOfTanks::DetectTankBuildingsCollision(glm::vec3 position)
+{
+    for (auto &building : buildings)
+    {
+        if (DetectTankBuildingCollision(position, building)) return true;
+    }
+    return false;
+}
+
+void WorldOfTanks::HandleTankBuildingCollision(tank::Tank& tank, Building& building, float deltaTime)
+{
+    glm::vec3 const buildingPosition = building.GetPosition();
+
+    if (DetectTankBuildingCollision(tank.position, building))
     {
         glm::vec3 const direction = normalize(tank.position - buildingPosition);
         tank.TranslateByDirection(deltaTime, direction);
     }
 }
 
-void WorldOfTanks::DetectProjectilesBuildingsCollisions()
+void WorldOfTanks::HandleProjectilesBuildingsCollisions()
 {
     auto iterator = projectiles.begin();
     while (iterator != projectiles.end())
@@ -220,4 +256,13 @@ void WorldOfTanks::DeleteExpiredProjectiles()
         }
         ++iterator;
     }
+}
+
+glm::vec3 WorldOfTanks::GetRandomPosition()
+{
+    int positionX = rand() % (WORLD_LENGTH / 2);
+    positionX *= rand() % 2 ? -1 : 1;
+    int positionZ = rand() % (WORLD_LENGTH / 2);
+    positionZ *= rand() % 2 ? -1 : 1;
+    return {positionX, 0, positionZ};
 }
