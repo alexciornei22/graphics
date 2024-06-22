@@ -1,3 +1,29 @@
+# Computer Graphics
+
+This repo contains my solutions for the labs and assignments for [Computer Graphics](https://ocw.cs.pub.ro/courses/egc),
+using the Course's framework which is built on top of OpenGL.
+
+The source code for my implementations is located in the [/src/lab_m1](src/lab_m1) directory.
+The most notable things here are the 2 assignments:
+- [PvZ](src/lab_m1/PvZ) (Plants vs. Zombies clone) - a 2D Tower Defence game
+    - the goal is to populate a 3x3 grid with multiple types of projectile-firing defences (also called shooters, these cost in-game money) to protect
+    against randomly spawning enemies coming to destroy you.
+    - the game features **drag-n-drop** functionality for placing the defences on the grid.
+    - when an enemy gets too close to the grid and reaches a defence, that defence is destroyed, disappearing from the screen with an **eased-in-out**
+  scale animation. The same eased animation is applied to destroyed player hearts and enemies.
+
+- [WoT](src/lab_m1/WorldOfTanks) (World of Tanks clone) - a 3D Third Person tank game.
+    - the players spawns in a map featuring multiple buildings & multiple enemy tanks which are lit from a single light source using the **Phong Shading Model**.
+    - the game features **multiple models of tanks**, mostly from WW2 (similarly to the real World of Tanks), that deform and change color upon receiving damage
+  (this is achieved by using a custom **shader**).
+    - the interface has a simple **HUD** containing a box showing the load/reload status of the player's projectile.
+    - the enemy tanks function based on a basic **state machine** which selects random actions that they can perform (go forward/backward, rotate etc). The exception is that when
+  the player gets too close, the enemy will start to follow the player and shoot at him.
+    - **collisions** between projectiles and tanks are determined using collision spheres.
+  
+The rest of this README is the README of the [GFX Framework](https://github.com/UPB-Graphics/gfx-framework) at the time I completed the Course,
+which was provided to students to simplify some aspects of graphics development.
+
 # GFX Framework
 
 ## :sparkles: Introduction
